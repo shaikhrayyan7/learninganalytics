@@ -1,0 +1,51 @@
+/* Reuse styles from Dashboard.css and Courses.css */
+
+.edit-textarea {
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  resize: vertical;
+  margin-top: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.edit-button {
+  margin-top: 1.25rem;
+  padding: 0.5rem 1.2rem;
+  background-color: #e63946; /* red theme */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 0.75rem;
+}
+
+.edit-button:hover {
+  background-color: #b30000;
+}
+
+.edit-button.save {
+  background-color: #2a9d8f; /* save: teal */
+}
+
+.edit-button.save:hover {
+  background-color: #1f6e67;
+}
+
+.edit-button.cancel {
+  background-color: #aaa;
+}
+
+.edit-button.cancel:hover {
+  background-color: #666;
+}
+
+.tab-content p {
+  white-space: pre-wrap; /* Preserve newlines and spaces */
+  word-wrap: break-word; /* Break long words to fit */
+}

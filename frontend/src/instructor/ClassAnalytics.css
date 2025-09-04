@@ -1,0 +1,124 @@
+/* src/pages/ClassAnalytics.css */
+
+.class-analytics-page {
+  padding: 2rem;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #fdfdfd;
+}
+
+h1 {
+  margin-bottom: 1rem;
+  color: #b30000;
+}
+
+.course-selector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.course-selector select {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  background-color: #fdfdfd;
+}
+
+/* Dropdowns for charts (week selectors) */
+.chart-box select {
+  margin-bottom: 0.75rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  background-color: #fff;
+}
+
+.charts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.chart-box {
+  flex: 1 1 45%;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 1.2rem 1.5rem;
+  border-radius: 12px;
+  min-height: 180px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.chart-box h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  color: #b30000;
+  font-weight: 600;
+}
+
+.risk-table-section {
+  margin-top: 2rem;
+}
+
+.risk-table-section h2 {
+  color: #b30000;
+  margin-bottom: 1rem;
+}
+
+.risk-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.risk-table th,
+.risk-table td {
+  padding: 0.8rem;
+  border: 1px solid #eee;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.risk-table th {
+  background-color: #f8f8f8;
+  font-weight: 600;
+  color: #b30000;
+}
+
+.risk-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Risk levels (optional color coding) */
+.risk.high {
+  color: #cc0000;
+  font-weight: bold;
+}
+
+.risk.medium {
+  color: #e67e22;
+  font-weight: bold;
+}
+
+.risk.low {
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+/* Responsive stacking for charts on small screens */
+@media (max-width: 768px) {
+  .chart-box {
+    flex: 1 1 100%;
+  }
+}
+
+/* Optional: Center pie chart canvas */
+.apexcharts-canvas {
+  margin: 0 auto;
+}

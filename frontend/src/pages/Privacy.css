@@ -1,0 +1,99 @@
+/* Privacy.css */
+
+.privacy-page {
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.privacy-page h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.privacy-page p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #555;
+}
+
+.privacy-section {
+  margin-bottom: 2.5rem;
+  background-color: #f9fafb;
+  padding: 1.5rem 2rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.privacy-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #34495e;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 0.3rem;
+}
+
+.privacy-section ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  color: #555;
+}
+
+.privacy-section ul li {
+  margin-bottom: 0.5rem;
+}
+
+form label {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  cursor: pointer;
+  color: #2c3e50;
+}
+
+form input[type="checkbox"] {
+  margin-right: 0.8rem;
+  transform: scale(1.2);
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.save-consent-btn {
+  margin-top: 1rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 1.1rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+}
+
+.save-consent-btn:hover {
+  background-color: #2980b9;
+}
+
+@media (max-width: 600px) {
+  .privacy-page {
+    padding: 1rem;
+  }
+
+  .privacy-section {
+    padding: 1rem;
+  }
+
+  .privacy-page h1 {
+    font-size: 2rem;
+  }
+
+  .privacy-section h2 {
+    font-size: 1.4rem;
+  }
+}

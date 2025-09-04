@@ -1,0 +1,96 @@
+/* src/admin/AdminDashboard.css */
+
+/* 🧱 MAIN CONTENT AREA */
+.main-content h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.main-content p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+/* 📊 DASHBOARD TILES */
+.dashboard-tiles {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.tile-card {
+  flex: 1 1 22%;
+  background-color: #f6f6f6;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.tile-card:hover {
+  transform: translateY(-4px);
+}
+
+.tile-card h3 {
+  margin-bottom: 0.5rem;
+  color: #e2001a;
+}
+
+.tile-card p {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 🚀 QUICK ACTIONS */
+.quick-actions h2 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.action-btn {
+  background-color: #e2001a;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.action-btn:hover {
+  background-color: #c40017;
+}
+
+/* 📋 RECENT ACTIVITY */
+.recent-activity {
+  margin-top: 2rem;
+}
+
+.recent-activity h2 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.recent-activity ul {
+  list-style: disc;
+  margin-left: 1.5rem;
+  color: #555;
+  padding-left: 1rem;
+  line-height: 1.6;
+}
+
+/* 🔻 FOOTER */
+.footer {
+  margin-top: 3rem;
+  padding: 1rem 2rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #999;
+}

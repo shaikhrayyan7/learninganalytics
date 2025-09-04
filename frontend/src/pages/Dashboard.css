@@ -1,0 +1,132 @@
+/* src/pages/Dashboard.css */
+
+.dashboard-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  /* 🔺 HEADER */
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 90px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+  
+  .logo {
+    height: 60px;
+  }
+  
+  .hamburger {
+    font-size: 28px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  /* 📚 SIDEBAR NAV */
+  .side-nav {
+    position: fixed;
+    overflow-y: auto;
+    top: 90px; /* below header */
+    left: -260px;
+    width: 260px;
+    height: calc(100vh - 90px);
+    background-color: #e2001a;
+    color: white;
+    padding-top: 2rem;
+    transition: left 0.3s ease;
+    z-index: 999;
+  }
+  
+  .side-nav.open {
+    left: 0;
+  }
+  
+  .side-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .side-nav li {
+    padding: 1rem 2rem;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .side-nav li:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* 🧱 MAIN CONTENT */
+  .main-content {
+    flex: 1;
+    padding: 130px 2rem 2rem 2rem; /* top padding to push below header */
+    margin-left: 0;
+    transition: margin-left 0.3s ease;
+  }
+  
+  .side-nav.open ~ .main-content {
+    margin-left: 260px; /* shift content if sidebar is open */
+  }
+  
+  .side-nav ul li a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  
+  /* 👋 HERO */
+  .dashboard-hero h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .dashboard-hero p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 2rem;
+  }
+  
+  /* 🎓 TILES */
+  .dashboard-tiles {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .tile-card {
+    flex: 1 1 30%;
+    background-color: #f6f6f6;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .tile-card h3 {
+    margin-bottom: 0.5rem;
+    color: #e2001a;
+  }
+  
+  /* 🔻 FOOTER */
+  .footer {
+    background-color: #ffffff;
+    padding: 1rem 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #999999;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  

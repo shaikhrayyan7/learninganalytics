@@ -1,0 +1,79 @@
+.recommendations-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.recommendation-box {
+  flex: 1 1 48%;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eee;
+}
+
+.recommendation-box h2 {
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  color: #b30000;
+}
+
+.subtitle {
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  color: #555;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: #333;
+}
+
+select,
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.send-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 0.7rem 1.4rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.send-btn:hover {
+  background-color: #0056b3;
+}
+
+.send-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.success-msg {
+  margin-top: 0.8rem;
+  color: green;
+  font-weight: 600;
+}

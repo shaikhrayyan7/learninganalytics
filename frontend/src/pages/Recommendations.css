@@ -1,0 +1,94 @@
+.recommendations-page {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.recommendations-page h1 {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+  text-align: center;
+  color: #000000;
+}
+
+.recommendations-page p {
+  text-align: center;
+  margin-bottom: 32px;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.tile {
+  border: 2px solid #000000;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  background-color: #f9fafe;
+}
+
+.tile.open {
+  box-shadow: 0 4px 15px rgba(0, 64, 128, 0.3);
+}
+
+.tile-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: #f91c08;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.3rem;
+  padding: 16px 20px;
+  border: none;
+  outline: none;
+  user-select: none;
+}
+
+.tile-icon {
+  margin-right: 15px;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.tile-title {
+  flex-grow: 1;
+}
+
+.tile-arrow {
+  font-size: 1rem;
+}
+
+.tile-content {
+  padding: 20px;
+  background-color: white;
+  border-top: 1px solid #ddd;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #222;
+}
+
+.tile-content ul {
+  list-style-type: disc;
+  margin-left: 20px;
+  padding-left: 0;
+}
+
+.tile-content ul li {
+  margin-bottom: 8px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .recommendations-page {
+    margin: 20px 10px;
+  }
+
+  .tile-header {
+    font-size: 1.1rem;
+    padding: 14px 16px;
+  }
+}

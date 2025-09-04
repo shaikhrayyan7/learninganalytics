@@ -1,0 +1,38 @@
+/* src/pages/Grades.css */
+.grades-table {
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .grades-table table {
+    width: 90%;
+    max-width: 800px;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .grades-table th,
+  .grades-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 1rem;
+  }
+  
+  .grades-table th {
+    background-color: #f5f5f5;
+    color: #333;
+  }
+  
+  .grades-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .grades-table td {
+    color: #444;
+  }
+  

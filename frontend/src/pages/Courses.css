@@ -1,0 +1,105 @@
+/* === Semester Filter Styling (Refined) === */
+.semester-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;          /* ⬅ Reduced from 1.5rem */
+  margin-bottom: 1.5rem;       /* Space between filter and course tiles */
+  padding: 0.6rem 1rem;
+  background-color: #e63946;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+}
+
+.semester-filter label {
+  font-weight: 500;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Custom Dropdown */
+.semester-filter select {
+  padding: 0.4rem 1rem;
+  font-size: 1rem;
+  min-width: 140px;
+  border-radius: 6px;
+  border: none;
+  background-color: #fff;
+  color: #2c2c2c;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' width='10' height='10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='20,50 70,100 120,50' stroke='%23666' stroke-width='20' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 10px 10px;
+}
+
+.semester-filter select:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+}
+
+/* === Tabs Navigation === */
+.course-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.5rem 0 1rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.tab-button {
+  padding: 0.6rem 1.5rem;
+  background-color: #f8f8f8;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+  background-color: #ffe6e6;
+  color: #b30000;
+  border-color: #f5cccc;
+}
+
+.tab-button.active {
+  background-color: #b30000;
+  color: white;
+  border-color: #b30000;
+}
+
+/* === Tab Content Area === */
+.tab-content {
+  background-color: #fff;
+  border: 1px solid #eee;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: opacity 0.3s ease;
+}
+
+/* === Edit Button (Instructor only) === */
+.edit-button {
+  margin-top: 1.5rem;
+  padding: 0.5rem 1.2rem;
+  background-color: #ff6666;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #cc0000;
+}
+

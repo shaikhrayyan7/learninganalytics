@@ -1,0 +1,415 @@
+/* Reset & Base */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+  background-color: #f9fafc;
+  margin: 0;
+  padding: 0;
+}
+
+/* Back Button */
+.back-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(74, 144, 226, 0.4);
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+  margin-bottom: 1.2rem;
+  display: inline-block;
+}
+
+.back-button:hover {
+  background-color: #357abd;
+  box-shadow: 0 5px 14px rgba(53, 122, 189, 0.6);
+}
+
+/* Add Course Section */
+.course-add-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: center;
+}
+
+.course-add-section input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1.5px solid #ccd6f6;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.course-add-section input:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
+}
+
+.course-add-section button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.25s ease;
+  box-shadow: 0 3px 6px rgba(74, 144, 226, 0.4);
+}
+
+.course-add-section button:hover {
+  background-color: #357abd;
+}
+
+/* Courses Layout */
+.courses-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.4rem; /* reduced gap to compact */
+  margin-top: 1rem;
+}
+
+/* Course Cards */
+.course-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+  padding: 1.2rem 1.6rem; /* reduced padding */
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem; /* reduced gap */
+  transition: transform 0.3s ease;
+  border: 1px solid transparent;
+  word-break: break-word;
+}
+
+.course-card:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+  border-color: #4a90e2;
+}
+
+/* Course Title */
+.course-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2a40;
+  margin: 0 0 0.3rem 0;
+  letter-spacing: 0.02em;
+}
+
+/* Labels */
+.course-card label {
+  font-weight: 600;
+  color: #4a4a4a;
+  margin-bottom: 0.15rem; /* less margin */
+  display: block;
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+/* Course Info Text (e.g. Program ID, Code, Department) */
+.course-info-text {
+  margin: 0 0 0.2rem 0;
+  font-size: 1rem;
+  color: #2c3e50;
+  line-height: 1.3;
+}
+
+/* Input Fields */
+.course-card input[type="text"] {
+  width: 100%;
+  padding: 0.5rem 0.75rem; /* tighter padding */
+  border-radius: 8px;
+  border: 1.4px solid #d1d9e6;
+  font-size: 1rem;
+  color: #2c3e50;
+  transition: border-color 0.3s ease;
+}
+
+.course-card input[type="text"]:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 6px rgba(74, 144, 226, 0.3);
+}
+
+/* Buttons */
+.course-card button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.1rem; /* reduced padding */
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 3px 8px rgba(74, 144, 226, 0.4);
+  margin-top: 0.4rem; /* reduced margin */
+  align-self: flex-start;
+}
+
+.course-card button:hover {
+  background-color: #357abd;
+  box-shadow: 0 5px 14px rgba(53, 122, 189, 0.6);
+}
+
+/* Save and Cancel Buttons */
+.course-card .save-button {
+  background-color: #27ae60;
+  margin-right: 0.6rem; /* reduced margin */
+  box-shadow: 0 3px 8px rgba(39, 174, 96, 0.45);
+}
+
+.course-card .save-button:hover {
+  background-color: #1e8449;
+  box-shadow: 0 5px 14px rgba(30, 132, 73, 0.7);
+}
+
+.course-card .cancel-button {
+  background-color: #e67e22;
+  box-shadow: 0 3px 8px rgba(230, 126, 34, 0.45);
+}
+
+.course-card .cancel-button:hover {
+  background-color: #ca6f1e;
+  box-shadow: 0 5px 14px rgba(202, 111, 30, 0.7);
+}
+
+/* Delete Button */
+.delete-button {
+  background-color: #e74c3c;
+  box-shadow: 0 3px 8px rgba(231, 76, 60, 0.45);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem; /* reduced padding */
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+  margin-top: 0.8rem; /* reduced margin */
+  align-self: flex-start;
+}
+
+.delete-button:hover {
+  background-color: #c0392b;
+  box-shadow: 0 5px 14px rgba(192, 57, 43, 0.7);
+}
+
+/* Instructors Section */
+.instructors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem; /* reduced gap */
+}
+
+.instructor-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* reduced gap */
+}
+
+.instructor-item input {
+  flex: 1;
+  padding: 0.4rem 0.6rem; /* reduced padding */
+  border-radius: 8px;
+  border: 1.4px solid #d1d9e6;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.instructor-item input:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 6px rgba(74, 144, 226, 0.3);
+}
+
+.remove-instructor-btn {
+  background-color: transparent;
+  border: none;
+  color: #e74c3c;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.remove-instructor-btn:hover {
+  color: #c0392b;
+}
+
+/* Add Instructor Button */
+.add-instructor-btn {
+  margin-top: 0.4rem;
+  background-color: #3498db;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background-color 0.25s ease;
+  box-shadow: 0 3px 8px rgba(52, 152, 219, 0.4);
+  font-size: 0.9rem;
+}
+
+.add-instructor-btn:hover {
+  background-color: #217dbb;
+  box-shadow: 0 5px 14px rgba(33, 125, 187, 0.7);
+}
+
+/* Students Section */
+.students-section {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  position: relative;
+}
+
+/* Collapsible student list container */
+.students-list-container {
+  max-height: 130px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1.5px solid #d1d9e6;
+  background-color: #fff;
+  transition: max-height 0.3s ease;
+}
+
+/* Expanded state (max-height large enough to show all students) */
+.students-list-container.expanded {
+  max-height: 400px;
+}
+
+/* Students UL */
+.students-section ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.students-section li {
+  padding: 0.35rem 0.8rem;
+  border-bottom: 1px solid #e4e9f0;
+  font-size: 1rem;
+  color: #2c3e50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.students-section li:last-child {
+  border-bottom: none;
+}
+
+/* Remove Student Button */
+.remove-student-btn {
+  background-color: transparent;
+  border: none;
+  color: #e74c3c;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  transition: color 0.2s ease;
+  line-height: 1;
+}
+
+.remove-student-btn:hover {
+  color: #c0392b;
+}
+
+/* Add Student Input and Button */
+.students-add {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.students-add input {
+  flex: 1;
+  padding: 0.5rem 0.8rem;
+  border-radius: 10px;
+  border: 1.5px solid #ccd6f6;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.students-add input:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
+}
+
+.students-add button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.25s ease;
+  box-shadow: 0 3px 6px rgba(74, 144, 226, 0.4);
+}
+
+.students-add button:hover {
+  background-color: #357abd;
+}
+
+/* Expand/Collapse toggle button for student list */
+.toggle-students-btn {
+  background: none;
+  border: none;
+  color: #4a90e2;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-top: 0.15rem;
+  align-self: flex-start;
+  padding: 0;
+  user-select: none;
+  text-decoration: underline;
+}
+
+.toggle-students-btn:hover {
+  color: #357abd;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .courses-list {
+    grid-template-columns: 1fr;
+  }
+
+  .course-add-section {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .students-add {
+    flex-direction: column;
+  }
+
+  .students-add input,
+  .students-add button {
+    width: 100%;
+  }
+}
