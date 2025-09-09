@@ -1,5 +1,5 @@
 // src/pages/Grades.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
 import "./Grades.css";
 import logo from "../assets/unilytics_logo.png";
@@ -8,9 +8,10 @@ import { NavLink, useNavigate } from "react-router-dom";
 function Grades() {
   const [menuOpen, setMenuOpen] = useState(localStorage.getItem("menuOpen") === "true");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [grades, setGrades] = useState([]);
   const navigate = useNavigate();
 
-  const email = localStorage.getItem("email") || "student@student-dhbw.de";
+  const email = localStorage.getItem("email");
   const username = email.split("@")[0];
 
   const toggleMenu = () => {
@@ -18,6 +19,26 @@ function Grades() {
     setMenuOpen(newState);
     localStorage.setItem("menuOpen", newState);
   };
+
+  useEffect(() => {
+    fetch(`http://127.0.0.1:5000/api/student/${email}/grades`)
+      .then(res => res.json())
+      .then(data => setGrades(data))
+      .catch(err => console.error(err));
+  }, [email]);
+
+  // Performance summary
+  const totalCredits = grades.reduce((sum, g) => sum + (g.accountedCredits || 0), 0);
+  const totalGrades = grades.filter(g => g.grade != null).map(g => g.grade);
+  const currentGPA = totalGrades.length > 0
+    ? (totalGrades.reduce((a, b) => a + b, 0) / totalGrades.length).toFixed(2)
+    : "-";
+
+  // 🔹 Dynamically calculate required credits
+  const requiredCredits = grades.reduce((sum, g) => sum + (g.credits || 0), 0);
+
+  // Group grades by semester
+  const semesters = [...new Set(grades.map(g => g.semester))].sort((a, b) => a - b);
 
   return (
     <div className="dashboard-page">
@@ -45,33 +66,56 @@ function Grades() {
       <div className="main-content">
         <section className="dashboard-hero">
           <h1>Welcome, {username}</h1>
-          <p>Your Grades</p>
+          <h3>Your Study Result</h3>
         </section>
 
+        {/* Single table with semester grouping */}
         <section className="grades-table">
-          <table>
+          <table style={{ width: "95%", minWidth: "1000px" }}>
             <thead>
               <tr>
+                <th>Semester</th>
                 <th>Course</th>
+                <th>Credits</th>
                 <th>Grade</th>
                 <th>Status</th>
+                <th>Accounted Credits</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Mathematics 2</td>
-                <td>1.7</td>
-                <td>Passed</td>
+              {semesters.map(sem => (
+                <React.Fragment key={sem}>
+                  {/* Semester Header */}
+                  <tr className="semester-row">
+                    <td colSpan="6"><strong>Semester {sem}</strong></td>
+                  </tr>
+                  {grades
+                    .filter(g => g.semester === sem)
+                    .map((course, idx) => (
+                      <tr key={idx}>
+                        <td></td>
+                        <td>{course.title}</td>
+                        <td>{course.credits}</td>
+                        <td>{course.grade ?? "-"}</td>
+                        <td>{course.status ?? "-"}</td>
+                        <td>{course.accountedCredits ?? "-"}</td>
+                      </tr>
+                    ))}
+                </React.Fragment>
+              ))}
+
+              {/* Performance summary inside table */}
+              <tr className="summary-row">
+                <td colSpan="2"><strong>Total Accounted Credits:</strong></td>
+                <td colSpan="4">{totalCredits}</td>
               </tr>
-              <tr>
-                <td>Computer Networks</td>
-                <td>2.3</td>
-                <td>Passed</td>
+              <tr className="summary-row">
+                <td colSpan="2"><strong>Credits Required for Graduation:</strong></td>
+                <td colSpan="4">{requiredCredits}</td>
               </tr>
-              <tr>
-                <td>Software Engineering</td>
-                <td>2.0</td>
-                <td>Passed</td>
+              <tr className="summary-row">
+                <td colSpan="2"><strong>Current GPA:</strong></td>
+                <td colSpan="4">{currentGPA}</td>
               </tr>
             </tbody>
           </table>

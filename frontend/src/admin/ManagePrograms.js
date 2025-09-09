@@ -3,37 +3,37 @@ import { useNavigate } from "react-router-dom";
 import logo from "../assets/unilytics_logo.png";
 import "./AdminDashboard.css";
 import "./ManagePrograms.css";
+import "./AdminProfile"
 
 function ManagePrograms() {
   const [menuOpen, setMenuOpen] = useState(localStorage.getItem("menuOpen") === "true");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [programs, setPrograms] = useState([]);
   const navigate = useNavigate();
-
-  const bachelorPrograms = [
-    { id: 1, name: "Computer Science" },
-    { id: 2, name: "Business Administration" },
-    { id: 3, name: "Mechanical Engineering" },
-    { id: 4, name: "Architecture" },
-    { id: 5, name: "Psychology" },
-  ];
-
-  const masterPrograms = [
-    { id: 6, name: "Applied Computer Science" },
-    { id: 7, name: "Applied Data Science and Analytics" },
-    { id: 8, name: "International Business and Engineering" },
-    { id: 9, name: "Water Technology" },
-    { id: 10, name: "Global Business & Leadership" },
-  ];
 
   useEffect(() => {
     localStorage.setItem("menuOpen", menuOpen);
   }, [menuOpen]);
 
-  const filterPrograms = (programs) =>
-    programs.filter((p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  // Fetch programs from backend
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:5000/api/programs");
+        const data = await res.json();
+        setPrograms(data);
+      } catch (err) {
+        console.error("Error fetching programs:", err);
+      }
+    };
+    fetchPrograms();
+  }, []);
+
+  const filterProgramsByType = (type) =>
+    programs
+      .filter((p) => p.type === type)
+      .filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="dashboard-page">
@@ -49,6 +49,7 @@ function ManagePrograms() {
           <li><span className="nav-link" onClick={() => navigate("/admin/dashboard")}>Dashboard</span></li>
           <li><span className="nav-link" onClick={() => navigate("/admin/manage-users")}>Manage Users</span></li>
           <li><span className="nav-link active" onClick={() => navigate("/admin/manage-programs")}>Manage Programs</span></li>
+          <li><span className="nav-link active" onClick={() => navigate("/admin/profile")}>Profile</span></li>
           <li><span className="nav-logout-link" onClick={() => setShowLogoutModal(true)}>Logout</span></li>
         </ul>
       </nav>
@@ -66,7 +67,7 @@ function ManagePrograms() {
 
         <h2>Bachelor Programs</h2>
         <div className="program-tiles">
-          {filterPrograms(bachelorPrograms).map((program) => (
+          {filterProgramsByType("Bachelor").map((program) => (
             <div
               className="program-tile clickable"
               key={program.id}
@@ -79,7 +80,7 @@ function ManagePrograms() {
 
         <h2>Master Programs</h2>
         <div className="program-tiles">
-          {filterPrograms(masterPrograms).map((program) => (
+          {filterProgramsByType("Master").map((program) => (
             <div
               className="program-tile clickable"
               key={program.id}
@@ -117,7 +118,6 @@ function ManagePrograms() {
         </div>
       )}
 
-      {/* FOOTER */}
       <footer className="footer">&copy; 2025 Unilytics. All rights reserved.</footer>
     </div>
   );

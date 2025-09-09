@@ -21,6 +21,7 @@ import AdminDashboard from "./admin/AdminDashboard";
 import ManageUsers from "./admin/ManageUsers";
 import ManagePrograms from './admin/ManagePrograms';
 import ProgramDetails from "./admin/ProgramDetails";
+import AdminProfile from "./admin/AdminProfile";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
         <Route path="/admin/manage-users" element={<ManageUsers />} />
         <Route path="/admin/manage-programs" element={<ManagePrograms />} />
         <Route path="/admin/manage-programs/:id" element={<ProgramDetails />} />
+        <Route path="/admin/profile" element={<AdminProfile />} />
       </Routes>
     </Router>
   );

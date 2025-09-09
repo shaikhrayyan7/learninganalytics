@@ -1,14 +1,47 @@
 import React, { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/unilytics_logo.png";
 import "./AdminDashboard.css";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(localStorage.getItem("menuOpen") === "true");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const [totalStudents, setTotalStudents] = useState(0);
+  const [totalInstructors, setTotalInstructors] = useState(0);
+  const [totalPrograms, setTotalPrograms] = useState(0);
+  const [recentActivity, setRecentActivity] = useState([]);
 
   useEffect(() => {
     localStorage.setItem("menuOpen", menuOpen);
   }, [menuOpen]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      // Fetch all users
+      const resUsers = await fetch("http://127.0.0.1:5000/api/users/");
+      const users = await resUsers.json();
+      setTotalStudents(users.filter(u => u.role?.toLowerCase() === "student").length);
+      setTotalInstructors(users.filter(u => u.role?.toLowerCase() === "instructor").length);
+
+      // Fetch all programs
+      const resPrograms = await fetch("http://127.0.0.1:5000/api/programs");
+      const programs = await resPrograms.json();
+      setTotalPrograms(programs.length); // count of active programs
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err);
+    }
+  };
+
+  const handleLogoutYes = () => {
+    localStorage.clear();
+    navigate("/");
+  };
 
   return (
     <div className="dashboard-page">
@@ -21,10 +54,13 @@ function AdminDashboard() {
       {/* SIDEBAR */}
       <nav className={`side-nav ${menuOpen ? "open" : ""}`}>
         <ul>
-          <li><NavLink to="/admin/dashboard">Dashboard</NavLink></li>
+          <li><NavLink to="/admin/dashboard" className="active">Dashboard</NavLink></li>
           <li><NavLink to="/admin/manage-users">Manage Users</NavLink></li>
-          <li><NavLink to="/admin/manage-roles">Manage Roles</NavLink></li>
-          <li><NavLink to="/admin/manage-courses">Manage Courses</NavLink></li>
+          <li><NavLink to="/admin/manage-programs">Manage Programs</NavLink></li>
+          <li><NavLink to="/admin/profile">Profile</NavLink></li>
+          <li>
+            <span onClick={() => setShowLogoutModal(true)} className="nav-logout-link">Logout</span>
+          </li>
         </ul>
       </nav>
 
@@ -36,42 +72,40 @@ function AdminDashboard() {
         <div className="dashboard-tiles">
           <div className="tile-card">
             <h3>Total Students</h3>
-            <p>126</p>
+            <p>{totalStudents}</p>
           </div>
           <div className="tile-card">
             <h3>Total Instructors</h3>
-            <p>14</p>
+            <p>{totalInstructors}</p>
           </div>
           <div className="tile-card">
-            <h3>Active Courses</h3>
-            <p>8</p>
-          </div>
-          <div className="tile-card">
-            <h3>Pending Approvals</h3>
-            <p>3</p>
+            <h3>Active Programs</h3>
+            <p>{totalPrograms}</p>
           </div>
         </div>
 
         <section className="quick-actions">
           <h2>Quick Actions</h2>
-          <button className="action-btn">Add New User</button>
-          <button className="action-btn">Add New Course</button>
-          <button className="action-btn">Import Users (CSV)</button>
+          <button className="action-btn" onClick={() => navigate("/admin/manage-users")}>Add New User</button>
+          <button className="action-btn" onClick={() => navigate("/admin/manage-programs")}>Add New Program</button>
         </section>
 
-        <section className="recent-activity">
-          <h2>Recent Platform Activity</h2>
-          <ul>
-            <li>Added course "AI Fundamentals" by admin@unilytics</li>
-            <li>Assigned 30 students to IPM</li>
-            <li>Removed instructor from CTCS</li>
-          </ul>
-        </section>
       </main>
 
-      <footer className="footer">
-        &copy; 2025 Unilytics. All rights reserved.
-      </footer>
+      {/* Logout Modal */}
+      {showLogoutModal && (
+        <div className="logout-modal-overlay">
+          <div className="logout-modal">
+            <h2>Do you want to logout?</h2>
+            <div className="logout-buttons">
+              <button className="yes-button" onClick={handleLogoutYes}>Yes</button>
+              <button className="no-button" onClick={() => setShowLogoutModal(false)}>No</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <footer className="footer">&copy; 2025 Unilytics. All rights reserved.</footer>
     </div>
   );
 }

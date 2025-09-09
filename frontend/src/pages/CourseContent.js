@@ -10,6 +10,7 @@ function CourseContent() {
   const [menuOpen, setMenuOpen] = useState(localStorage.getItem("menuOpen") === "true");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [course, setCourse] = useState(null);
   const navigate = useNavigate();
 
   const email = localStorage.getItem("email") || "student@student-dhbw.de";
@@ -20,32 +21,30 @@ function CourseContent() {
     localStorage.setItem("menuOpen", menuOpen);
   }, [menuOpen]);
 
-  const dummyCourses = {
-    math2: {
-      title: "Mathematics 2",
-      description: "Covers Linear Algebra and Statistics",
-      tabs: {
-        overview: "This course provides foundational knowledge in Linear Algebra and Statistical methods.",
-        material: "Lecture slides, textbooks (e.g., Linear Algebra by Gilbert Strang), problem sets.",
-        exam: "Final exam: 50%, Midterm: 30%, Quizzes: 20%",
-        exercises: "Weekly problem sheets with solutions.",
-        lecture: "Lectures held Mon/Wed 10:00–11:30. Recorded sessions available."
+  useEffect(() => {
+    const fetchCourseDetails = async () => {
+      try {
+        const res = await fetch(`http://127.0.0.1:5000/api/courses/${courseId}`);
+        const data = await res.json();
+        if (!data.error) {
+          // add some default tab contents for now
+          setCourse({
+            ...data,
+            tabs: {
+              overview: data.description || "No overview available yet.",
+              material: "Study material will be uploaded here.",
+              exam: "Examination details will be announced.",
+              exercises: "Exercises will be provided.",
+              lecture: "Lecture schedule will be shared."
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching course details:", err);
       }
-    },
-    cn: {
-      title: "Computer Networks",
-      description: "Understand OSI Model, Routing, Protocols",
-      tabs: {
-        overview: "Course explains the fundamentals of network layers and protocols.",
-        material: "RFC docs, textbook: Computer Networking by Kurose, lab guides.",
-        exam: "Project: 40%, Final: 60%",
-        exercises: "Packet tracing labs, router setup tasks.",
-        lecture: "Tue/Thu 13:00–14:30. Lab sessions every Friday."
-      }
-    }
-  };
-
-  const course = dummyCourses[courseId];
+    };
+    fetchCourseDetails();
+  }, [courseId]);
 
   const renderTabContent = () => {
     if (!course) return null;
@@ -99,7 +98,8 @@ function CourseContent() {
         {course ? (
           <>
             <h1>{course.title}</h1>
-            <p><strong>Description:</strong> {course.description}</p>
+            <p><strong>Credits:</strong> {course.creditPoints}</p>
+            {course.specialization && <p><strong>Specialization:</strong> {course.specialization}</p>}
 
             {/* TABS */}
             <div className="course-tabs">
@@ -119,8 +119,8 @@ function CourseContent() {
           </>
         ) : (
           <div className="course-details">
-            <h1>Course Not Found</h1>
-            <p>The requested course does not exist or hasn't been assigned yet.</p>
+            <h1>Loading...</h1>
+            <p>Fetching course details, please wait.</p>
           </div>
         )}
       </main>
@@ -131,21 +131,11 @@ function CourseContent() {
           <div className="logout-modal">
             <h2>Do you want to logout?</h2>
             <div className="logout-buttons">
-              <button
-                className="yes-button"
-                onClick={() => {
-                  localStorage.clear();
-                  navigate("/");
-                }}
-              >
-                Yes
-              </button>
-              <button
-                className="no-button"
-                onClick={() => setShowLogoutModal(false)}
-              >
-                No
-              </button>
+              <button className="yes-button" onClick={() => {
+                localStorage.clear();
+                navigate("/");
+              }}>Yes</button>
+              <button className="no-button" onClick={() => setShowLogoutModal(false)}>No</button>
             </div>
           </div>
         </div>

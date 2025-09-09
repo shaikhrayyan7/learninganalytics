@@ -8,24 +8,43 @@ import { useNavigate } from "react-router-dom";
 function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); // still needed for UI
+  const [password, setPassword] = useState(""); 
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    // Mock login logic
-    const lowerEmail = email.toLowerCase();
+    try {
+      const res = await fetch("http://127.0.0.1:5000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (lowerEmail === "john@student-dhbw.de") {
-      localStorage.setItem("email", email);
-      localStorage.setItem("role", "student");
-      navigate("/dashboard");
-    } else if (lowerEmail === "drsmith@instructor-dhbw.de") {
-      localStorage.setItem("email", email);
-      localStorage.setItem("role", "instructor");
-      navigate("/dashboard");
-    } else {
-      alert("Invalid credentials. Use a valid student or instructor email.");
+      const data = await res.json();
+      setLoading(false);
+
+      if (!res.ok) {
+        alert(data.error || "Invalid credentials");
+        return;
+      }
+
+      // Save user info in localStorage
+      localStorage.setItem("email", data.email);
+      localStorage.setItem("role", data.role);
+
+      // Role-based redirect
+      if (data.role.toLowerCase() === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+
+    } catch (err) {
+      setLoading(false);
+      alert("Cannot connect to server");
+      console.error(err);
     }
   };
 
@@ -54,7 +73,9 @@ function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <button type="submit">Login</button>
+            <button type="submit" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </button>
           </form>
         </div>
       </div>

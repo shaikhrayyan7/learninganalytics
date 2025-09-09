@@ -1,4 +1,3 @@
-// src/admin/ProgramDetails.js
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import logo from "../assets/unilytics_logo.png";
@@ -6,174 +5,121 @@ import "./AdminDashboard.css";
 import "./ManagePrograms.css";
 import "./ProgramDetails.css";
 
-const allPrograms = [
-  { id: 1, name: "Computer Science", code: "CS101", department: "CS", coordinator: "Dr. Smith" },
-  { id: 2, name: "Business Administration", code: "BA201", department: "Business", coordinator: "Prof. Jones" },
-  { id: 3, name: "Mechanical Engineering", code: "ME301", department: "Engineering", coordinator: "Dr. Miller" },
-  { id: 4, name: "Architecture", code: "AR401", department: "Design", coordinator: "Dr. Lee" },
-  { id: 5, name: "Psychology", code: "PSY501", department: "Humanities", coordinator: "Dr. Kim" },
-  { id: 6, name: "Applied Computer Science", code: "ACS601", department: "CS", coordinator: "Sabine Helwig" },
-  { id: 7, name: "Applied Data Science and Analytics", code: "DSA701", department: "CS", coordinator: "Prof. Khan" },
-  { id: 8, name: "International Business and Engineering", code: "IBE801", department: "Business", coordinator: "Dr. Martinez" },
-  { id: 9, name: "Water Technology", code: "WT901", department: "Science", coordinator: "Prof. Gupta" },
-  { id: 10, name: "Global Business & Leadership", code: "GBL1001", department: "Business", coordinator: "Dr. Clark" },
-];
-
 function ProgramDetails() {
-  const { id } = useParams();
+  const { id } = useParams(); // program ID
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(localStorage.getItem("menuOpen") === "true");
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-
-  const program = allPrograms.find((p) => p.id.toString() === id);
-
-  // Courses with structure: {id, name, instructors: [], students: []}
-  const [courses, setCourses] = useState([]);
-  const [newCourseName, setNewCourseName] = useState("");
-  const [editingCourseId, setEditingCourseId] = useState(null);
-
-  // Temp states for editing fields
-  const [editCourseName, setEditCourseName] = useState("");
-  const [editInstructorInput, setEditInstructorInput] = useState("");
-  const [editStudentInput, setEditStudentInput] = useState("");
-
-  // Expanded state to toggle student list per course
-  const [expandedCourses, setExpandedCourses] = useState({});
+  const [program, setProgram] = useState(null);
+  const [coursesBySemester, setCoursesBySemester] = useState([]);
+  const [newCourse, setNewCourse] = useState({ title: "", semester: 1, creditPoints: 0, type: "core" });
 
   useEffect(() => {
     localStorage.setItem("menuOpen", menuOpen);
   }, [menuOpen]);
 
+  useEffect(() => {
+    // Fetch program info
+    fetch(`http://127.0.0.1:5000/api/programs`)
+      .then((res) => res.json())
+      .then((data) => {
+        const prog = data.find((p) => p.id === id);
+        if (prog) setProgram(prog);
+      })
+      .catch(console.error);
+
+    fetchCourses();
+  }, [id]);
+
+  const fetchCourses = () => {
+    fetch(`http://127.0.0.1:5000/api/programs/${id}/courses`)
+      .then((res) => res.json())
+      .then((data) => {
+        // Add "isEditing" flag for frontend editing
+        const newData = data.map((sem) => ({
+          ...sem,
+          courses: sem.courses.map((c) => ({ ...c, isEditing: false, newInstructor: "", newStudent: "" })),
+        }));
+        setCoursesBySemester(newData);
+      })
+      .catch(console.error);
+  };
+
+  const handleAddCourse = async () => {
+    if (!newCourse.title) return;
+    const res = await fetch(`http://127.0.0.1:5000/api/programs/${id}/courses`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newCourse),
+    });
+    if (res.ok) {
+      setNewCourse({ title: "", semester: 1, creditPoints: 0, type: "core" });
+      fetchCourses();
+    }
+  };
+
+  const handleEditCourse = (semIndex, courseIndex) => {
+    const updated = [...coursesBySemester];
+    updated[semIndex].courses[courseIndex].isEditing = true;
+    setCoursesBySemester(updated);
+  };
+
+  const handleCancelEdit = (semIndex, courseIndex) => {
+    const updated = [...coursesBySemester];
+    updated[semIndex].courses[courseIndex].isEditing = false;
+    setCoursesBySemester(updated);
+  };
+
+  const handleSaveCourse = async (course, semIndex) => {
+    const res = await fetch(
+      `http://127.0.0.1:5000/api/programs/${id}/courses/${course.id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(course),
+      }
+    );
+    if (res.ok) fetchCourses();
+  };
+
+  const handleDeleteCourse = async (courseId) => {
+    const res = await fetch(
+      `http://127.0.0.1:5000/api/programs/${id}/courses/${courseId}`,
+      { method: "DELETE" }
+    );
+    if (res.ok) fetchCourses();
+  };
+
+  const handleAddInstructor = (course, semIndex) => {
+    if (!course.newInstructor) return;
+    course.instructors = course.instructors ? [...course.instructors, course.newInstructor] : [course.newInstructor];
+    course.newInstructor = "";
+    handleSaveCourse(course, semIndex);
+  };
+
+  const handleRemoveInstructor = (course, semIndex, index) => {
+    course.instructors.splice(index, 1);
+    handleSaveCourse(course, semIndex);
+  };
+
+  const handleAddStudent = (course, semIndex) => {
+    if (!course.newStudent) return;
+    course.students = course.students ? [...course.students, course.newStudent] : [course.newStudent];
+    course.newStudent = "";
+    handleSaveCourse(course, semIndex);
+  };
+
+  const handleRemoveStudent = (course, semIndex, index) => {
+    course.students.splice(index, 1);
+    handleSaveCourse(course, semIndex);
+  };
+
   if (!program) {
-    return <div className="main-content"><h2>Program not found.</h2></div>;
+    return (
+      <div className="main-content">
+        <h2>Program not found.</h2>
+      </div>
+    );
   }
-
-  // Add new course
-  const handleAddCourse = () => {
-    if (!newCourseName.trim()) return;
-    const newId = Date.now();
-    setCourses([
-      ...courses,
-      { id: newId, name: newCourseName.trim(), instructors: [], students: [] }
-    ]);
-    setNewCourseName("");
-  };
-
-  // Start editing a course tile
-  const startEditing = (course) => {
-    setEditingCourseId(course.id);
-    setEditCourseName(course.name);
-    setEditInstructorInput("");
-    setEditStudentInput("");
-  };
-
-  // Cancel editing
-  const cancelEditing = () => {
-    setEditingCourseId(null);
-    setEditCourseName("");
-    setEditInstructorInput("");
-    setEditStudentInput("");
-  };
-
-  // Save edited course details
-  const saveCourseDetails = () => {
-    setCourses((prev) =>
-      prev.map((course) =>
-        course.id === editingCourseId
-          ? { ...course, name: editCourseName.trim() || course.name }
-          : course
-      )
-    );
-    cancelEditing();
-  };
-
-  // Add instructor (multiple allowed)
-  const addInstructor = (courseId) => {
-    if (!editInstructorInput.trim()) return;
-    setCourses((prev) =>
-      prev.map((course) => {
-        if (course.id === courseId) {
-          // Avoid duplicate instructor names (case insensitive)
-          const exists = course.instructors.some(
-            (inst) => inst.toLowerCase() === editInstructorInput.trim().toLowerCase()
-          );
-          if (exists) return course;
-
-          return {
-            ...course,
-            instructors: [...course.instructors, editInstructorInput.trim()],
-          };
-        }
-        return course;
-      })
-    );
-    setEditInstructorInput("");
-  };
-
-  // Remove instructor by name
-  const removeInstructor = (courseId, instructorName) => {
-    setCourses((prev) =>
-      prev.map((course) =>
-        course.id === courseId
-          ? {
-              ...course,
-              instructors: course.instructors.filter((i) => i !== instructorName),
-            }
-          : course
-      )
-    );
-  };
-
-  // Add student
-  const addStudent = (courseId) => {
-    if (!editStudentInput.trim()) return;
-    setCourses((prev) =>
-      prev.map((course) => {
-        if (course.id === courseId) {
-          // Avoid duplicate student names (case insensitive)
-          const exists = course.students.some(
-            (stu) => stu.toLowerCase() === editStudentInput.trim().toLowerCase()
-          );
-          if (exists) return course;
-
-          return {
-            ...course,
-            students: [...course.students, editStudentInput.trim()],
-          };
-        }
-        return course;
-      })
-    );
-    setEditStudentInput("");
-  };
-
-  // Remove student by name
-  const removeStudent = (courseId, studentName) => {
-    setCourses((prev) =>
-      prev.map((course) =>
-        course.id === courseId
-          ? {
-              ...course,
-              students: course.students.filter((s) => s !== studentName),
-            }
-          : course
-      )
-    );
-  };
-
-  // Delete whole course
-  const deleteCourse = (courseId) => {
-    setCourses((prev) => prev.filter((c) => c.id !== courseId));
-    if (editingCourseId === courseId) cancelEditing();
-  };
-
-  // Toggle expand/collapse student list for a course
-  const toggleExpand = (courseId) => {
-    setExpandedCourses((prev) => ({
-      ...prev,
-      [courseId]: !prev[courseId],
-    }));
-  };
 
   return (
     <div className="dashboard-page">
@@ -189,7 +135,8 @@ function ProgramDetails() {
           <li><span className="nav-link" onClick={() => navigate("/admin/dashboard")}>Dashboard</span></li>
           <li><span className="nav-link" onClick={() => navigate("/admin/manage-users")}>Manage Users</span></li>
           <li><span className="nav-link active" onClick={() => navigate("/admin/manage-programs")}>Manage Programs</span></li>
-          <li><span className="nav-logout-link" onClick={() => setShowLogoutModal(true)}>Logout</span></li>
+          <li><span className="nav-link active" onClick={() => navigate("/admin/profile")}>Profile</span></li>
+          <li><span className="nav-logout-link" onClick={() => navigate("/")}>Logout</span></li>
         </ul>
       </nav>
 
@@ -198,185 +145,166 @@ function ProgramDetails() {
         <button className="back-button" onClick={() => navigate(-1)}>← Back</button>
         <h1>{program.name}</h1>
         <p><strong>Program ID:</strong> {program.id}</p>
-        <p><strong>Code:</strong> {program.code}</p>
-        <p><strong>Department:</strong> {program.department}</p>
-        <p><strong>Coordinator:</strong> {program.coordinator}</p>
+        <p><strong>Type:</strong> {program.type || "-"}</p>
+        <p><strong>Duration:</strong> {program.duration || "-"} years</p>
+        <p><strong>Specializations:</strong> {program.specializations ? program.specializations.join(", ") : "-"}</p>
 
         <hr />
 
+        {/* Add Course */}
+        <section className="course-add-section">
+          <input
+            type="text"
+            placeholder="Course title"
+            value={newCourse.title}
+            onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
+          />
+          <input
+            type="number"
+            placeholder="Credit Points"
+            value={newCourse.creditPoints}
+            onChange={(e) => setNewCourse({ ...newCourse, creditPoints: parseInt(e.target.value) })}
+          />
+          <select
+            value={newCourse.type}
+            onChange={(e) => setNewCourse({ ...newCourse, type: e.target.value })}
+          >
+            <option value="core">Core</option>
+            <option value="elective">Elective</option>
+          </select>
+          <input
+            type="number"
+            placeholder="Semester"
+            value={newCourse.semester}
+            min={1}
+            onChange={(e) => setNewCourse({ ...newCourse, semester: parseInt(e.target.value) })}
+          />
+          <button onClick={handleAddCourse}>Add Course</button>
+        </section>
+
+        {/* Courses List */}
         <section>
           <h2>Courses in this Program</h2>
+          {coursesBySemester.length === 0 && <p>No courses yet.</p>}
 
-          <div className="course-add-section">
-            <input
-              value={newCourseName}
-              onChange={(e) => setNewCourseName(e.target.value)}
-              placeholder="New Course Name"
-              aria-label="New Course Name"
-            />
-            <button onClick={handleAddCourse}>Add Course</button>
-          </div>
-
-          {courses.length === 0 && <p>No courses yet.</p>}
-
-          <div className="courses-list">
-            {courses.map((course) => {
-              const isEditing = editingCourseId === course.id;
-              const isExpanded = expandedCourses[course.id] || false;
-
-              return (
-                <div key={course.id} className="course-card">
-                  {!isEditing ? (
-                    <>
-                      <h3 className="course-title">{course.name}</h3>
-
-                      <div className="instructors-display">
-                        <strong>Instructors:</strong>
-                        {course.instructors.length > 0 ? (
-                          <ul>
-                            {course.instructors.map((inst, idx) => (
-                              <li key={idx}>{inst}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="no-data">No instructors assigned</p>
-                        )}
-                      </div>
-
-                      <div className="students-display">
-                        <strong>
-                          Students:{" "}
-                          {course.students.length > 10 && (
-                            <button
-                              className="expand-toggle"
-                              onClick={() => toggleExpand(course.id)}
-                              aria-label={`${isExpanded ? "Collapse" : "Expand"} student list`}
-                            >
-                              {isExpanded ? "▲" : "▼"}
-                            </button>
-                          )}
-                        </strong>
-                        {course.students.length > 0 ? (
-                          <ul className={`students-list ${isExpanded ? "expanded" : "collapsed"}`}>
-                            {(isExpanded ? course.students : course.students.slice(0, 10)).map((stu, idx) => (
-                              <li key={idx}>{stu}</li>
-                            ))}
-                            {!isExpanded && course.students.length > 10 && (
-                              <li className="more-count">...and {course.students.length - 10} more</li>
-                            )}
-                          </ul>
-                        ) : (
-                          <p className="no-data">No students enrolled</p>
-                        )}
-                      </div>
-
-                      <div className="course-actions">
-                        <button className="edit-button" onClick={() => startEditing(course)}>
-                          Edit
-                        </button>
-                        <button className="delete-button" onClick={() => deleteCourse(course.id)}>
-                          Delete
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <label htmlFor={`courseName-${course.id}`} className="input-label">
-                        Course Name
-                      </label>
-                      <input
-                        id={`courseName-${course.id}`}
-                        type="text"
-                        value={editCourseName}
-                        onChange={(e) => setEditCourseName(e.target.value)}
-                      />
-
-                      <label className="input-label">Instructors</label>
-                      <ul className="editable-list">
-                        {course.instructors.map((inst) => (
-                          <li key={inst} className="editable-list-item">
-                            <span>{inst}</span>
-                            <button
-                              className="remove-button"
-                              onClick={() => removeInstructor(course.id, inst)}
-                              aria-label={`Delete instructor ${inst}`}
-                            >
-                              Delete
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="input-inline">
+          {coursesBySemester.map((sem, semIndex) => (
+            <div key={sem._id || sem.semester}>
+              <h3>Semester {sem.semester}</h3>
+              <div className="courses-list">
+                {sem.courses.map((course, index) => (
+                  <div className="course-card" key={course.id}>
+                    {course.isEditing ? (
+                      <>
                         <input
                           type="text"
-                          placeholder="Add Instructor"
-                          value={editInstructorInput}
-                          onChange={(e) => setEditInstructorInput(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && addInstructor(course.id)}
-                          aria-label="Add Instructor"
+                          value={course.title}
+                          onChange={(e) => {
+                            const updated = [...coursesBySemester];
+                            updated[semIndex].courses[index].title = e.target.value;
+                            setCoursesBySemester(updated);
+                          }}
                         />
-                        <button onClick={() => addInstructor(course.id)}>Add</button>
-                      </div>
-
-                      <label className="input-label">Students</label>
-                      <ul className="editable-list">
-                        {course.students.map((stu) => (
-                          <li key={stu} className="editable-list-item">
-                            <span>{stu}</span>
-                            <button
-                              className="remove-button"
-                              onClick={() => removeStudent(course.id, stu)}
-                              aria-label={`Delete student ${stu}`}
-                            >
-                              Delete
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="input-inline">
                         <input
-                          type="text"
-                          placeholder="Add Student"
-                          value={editStudentInput}
-                          onChange={(e) => setEditStudentInput(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && addStudent(course.id)}
-                          aria-label="Add Student"
+                          type="number"
+                          value={course.creditPoints}
+                          onChange={(e) => {
+                            const updated = [...coursesBySemester];
+                            updated[semIndex].courses[index].creditPoints = parseInt(e.target.value);
+                            setCoursesBySemester(updated);
+                          }}
                         />
-                        <button onClick={() => addStudent(course.id)}>Add</button>
-                      </div>
+                        <select
+                          value={course.type}
+                          onChange={(e) => {
+                            const updated = [...coursesBySemester];
+                            updated[semIndex].courses[index].type = e.target.value;
+                            setCoursesBySemester(updated);
+                          }}
+                        >
+                          <option value="core">Core</option>
+                          <option value="elective">Elective</option>
+                        </select>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <button className="save-button" onClick={() => handleSaveCourse(course, semIndex)}>Save</button>
+                          <button className="cancel-button" onClick={() => handleCancelEdit(semIndex, index)}>Cancel</button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <h4>{course.title}</h4>
+                        <p><strong>Type:</strong> {course.type || "-"}</p>
+                        {course.specialization && <p><strong>Specialization:</strong> {course.specialization}</p>}
+                        <p><strong>Credit Points:</strong> {course.creditPoints || "-"}</p>
+                        <div style={{ marginTop: "0.5rem" }}>
+                          <button className="save-button" onClick={() => handleEditCourse(semIndex, index)}>Edit</button>
+                          <button className="delete-button" onClick={() => handleDeleteCourse(course.id)}>Delete</button>
+                        </div>
+                      </>
+                    )}
 
-                      <div className="course-actions">
-                        <button className="save-button" onClick={saveCourseDetails}>
-                          Save
-                        </button>
-                        <button className="cancel-button" onClick={cancelEditing}>
-                          Cancel
-                        </button>
+                    {/* Instructors */}
+                    <div className="instructors-list">
+                      {course.instructors && course.instructors.map((inst, i) => (
+                        <div className="instructor-item" key={i}>
+                          <span>{inst}</span>
+                          <button className="remove-instructor-btn" onClick={() => handleRemoveInstructor(course, semIndex, i)}>×</button>
+                        </div>
+                      ))}
+                      {course.isEditing && (
+                        <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.4rem" }}>
+                          <input
+                            type="text"
+                            placeholder="Instructor Name"
+                            value={course.newInstructor}
+                            onChange={(e) => {
+                              const updated = [...coursesBySemester];
+                              updated[semIndex].courses[index].newInstructor = e.target.value;
+                              setCoursesBySemester(updated);
+                            }}
+                          />
+                          <button className="add-instructor-btn" onClick={() => handleAddInstructor(course, semIndex)}>Add</button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Students */}
+                    <div className="students-section">
+                      <div className={`students-list-container`}>
+                        <ul>
+                          {course.students && course.students.map((stu, i) => (
+                            <li key={i}>
+                              {stu}
+                              {course.isEditing && (
+                                <button className="remove-student-btn" onClick={() => handleRemoveStudent(course, semIndex, i)}>×</button>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                      {course.isEditing && (
+                        <div className="students-add">
+                          <input
+                            type="text"
+                            placeholder="Student Name"
+                            value={course.newStudent}
+                            onChange={(e) => {
+                              const updated = [...coursesBySemester];
+                              updated[semIndex].courses[index].newStudent = e.target.value;
+                              setCoursesBySemester(updated);
+                            }}
+                          />
+                          <button onClick={() => handleAddStudent(course, semIndex)}>Add Student</button>
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </section>
       </main>
-
-      {/* Logout Modal */}
-      {showLogoutModal && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <p>Are you sure you want to logout?</p>
-            <button onClick={() => {
-              localStorage.clear();
-              navigate("/login");
-            }}>
-              Yes
-            </button>
-            <button onClick={() => setShowLogoutModal(false)}>No</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

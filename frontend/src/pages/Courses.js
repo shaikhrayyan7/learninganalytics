@@ -1,5 +1,5 @@
 // src/pages/Courses.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Courses.css";
 import logo from "../assets/unilytics_logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -8,23 +8,50 @@ function Courses() {
   const [menuOpen, setMenuOpen] = useState(localStorage.getItem("menuOpen") === "true");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [selectedSemester, setSelectedSemester] = useState(1);
-
+  const [courses, setCourses] = useState([]);
+  const [maxSemesters, setMaxSemesters] = useState(6); // default fallback
   const navigate = useNavigate();
+
   const email = localStorage.getItem("email") || "student@student-dhbw.de";
   const username = email.split("@")[0];
 
-  const courseData = {
-    1: [
-      { id: "math2", title: "Mathematics 2", description: "Linear Algebra, Statistics" },
-      { id: "cn", title: "Computer Networks", description: "OSI Model, Routing, Protocols" }
-    ],
-    2: [
-      { id: "se", title: "Software Engineering", description: "Agile, Scrum, Version Control" }
-    ],
-    3: []
-  };
+  // Fetch program details once
+  useEffect(() => {
+    const fetchProgram = async () => {
+      try {
+        const res = await fetch(`http://127.0.0.1:5000/profile/${email}`);
+        const data = await res.json();
+        if (data && data.program) {
+          // ask backend program collection to get details
+          const programRes = await fetch(`http://127.0.0.1:5000/api/program/${data.program}`);
+          const programData = await programRes.json();
+          if (programData.semesters) {
+            setMaxSemesters(programData.semesters);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching program info:", err);
+      }
+    };
+    fetchProgram();
+  }, [email]);
 
-  const currentSemester = 1;
+  // Fetch courses whenever semester changes
+  useEffect(() => {
+    fetchCourses(selectedSemester);
+  }, [selectedSemester]);
+
+  const fetchCourses = async (semester) => {
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:5000/api/student/${email}/courses?semester=${semester}`
+      );
+      const data = await res.json();
+      setCourses(data);
+    } catch (err) {
+      console.error("Error fetching courses:", err);
+    }
+  };
 
   const toggleMenu = () => {
     const newState = !menuOpen;
@@ -35,8 +62,6 @@ function Courses() {
   const handleCourseClick = (courseId) => {
     navigate(`/course/${courseId}`);
   };
-
-  const filteredCourses = courseData[selectedSemester] || [];
 
   return (
     <div className="dashboard-page">
@@ -69,23 +94,25 @@ function Courses() {
           {/* Semester Filter */}
           <div className="semester-filter">
             <label>Select Semester: </label>
-            <select value={selectedSemester} onChange={(e) => setSelectedSemester(Number(e.target.value))}>
-              <option value={1}>Semester 1</option>
-              <option value={2}>Semester 2</option>
-              <option value={3}>Semester 3</option>
-              <option value={3}>Semester 4</option>
+            <select
+              value={selectedSemester}
+              onChange={(e) => setSelectedSemester(Number(e.target.value))}
+            >
+              {[...Array(maxSemesters)].map((_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  Semester {i + 1}
+                </option>
+              ))}
             </select>
           </div>
         </section>
 
         {/* COURSE TILES */}
         <section className="dashboard-tiles">
-          {selectedSemester > currentSemester ? (
-            <p>No courses available yet for Semester {selectedSemester}.</p>
-          ) : filteredCourses.length === 0 ? (
-            <p>No courses found.</p>
+          {courses.length === 0 ? (
+            <p>No courses found for Semester {selectedSemester}.</p>
           ) : (
-            filteredCourses.map((course) => (
+            courses.map((course) => (
               <div
                 key={course.id}
                 className="tile-card"
@@ -93,7 +120,7 @@ function Courses() {
                 style={{ cursor: "pointer" }}
               >
                 <h3>{course.title}</h3>
-                <p>{course.description}</p>
+                <p>{course.description || ""}</p>
               </div>
             ))
           )}

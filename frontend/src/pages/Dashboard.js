@@ -1,5 +1,4 @@
-// src/pages/Dashboard.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
 import logo from "../assets/unilytics_logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -9,6 +8,7 @@ function Dashboard() {
     localStorage.getItem("menuOpen") === "true"
   );
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
 
   const toggleMenu = () => {
@@ -21,86 +21,48 @@ function Dashboard() {
   const username = email.split("@")[0];
   const isInstructor = email.endsWith("@instructor-dhbw.de");
 
+  // Fetch student's current semester courses
+  useEffect(() => {
+    if (!isInstructor) {
+      fetch(`http://127.0.0.1:5000/api/student/${email}/courses`)
+        .then((res) => res.json())
+        .then((data) => setCourses(data))
+        .catch((err) => console.error(err));
+    }
+  }, [email, isInstructor]);
+
   return (
     <div className="dashboard-page">
       {/* HEADER */}
       <header className="navbar">
         <img src={logo} alt="Unilytics Logo" className="logo" />
-        <button className="hamburger" onClick={toggleMenu}>
-          ☰
-        </button>
+        <button className="hamburger" onClick={toggleMenu}>☰</button>
       </header>
 
       {/* SIDEBAR */}
       <nav className={`side-nav ${menuOpen ? "open" : ""}`}>
         <ul>
-          <li>
-            <NavLink to="/dashboard" className={({ isActive }) => (isActive ? "active" : "")}>
-              Dashboard
-            </NavLink>
-          </li>
+          <li><NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>Dashboard</NavLink></li>
 
           {isInstructor ? (
             <>
-              <li>
-                <NavLink to="/instructor/my-teaching" className={({ isActive }) => (isActive ? "active" : "")}>
-                  My Teaching
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/instructor/class-analytics" className={({ isActive }) => (isActive ? "active" : "")}>
-                  Class Analytics
-                </NavLink>
-              </li>
+              <li><NavLink to="/instructor/my-teaching" className={({ isActive }) => isActive ? "active" : ""}>My Teaching</NavLink></li>
+              <li><NavLink to="/instructor/class-analytics" className={({ isActive }) => isActive ? "active" : ""}>Class Analytics</NavLink></li>
               <li><NavLink to="/instructor/student-list">Student List</NavLink></li>
-              <li>
-                <NavLink to="/instructor/recommendations" className={({ isActive }) => (isActive ? "active" : "")}>
-                  Send Recommendations
-                </NavLink>
-              </li>
+              <li><NavLink to="/instructor/recommendations" className={({ isActive }) => isActive ? "active" : ""}>Send Recommendations</NavLink></li>
             </>
           ) : (
             <>
-              <li>
-                <NavLink to="/courses" className={({ isActive }) => (isActive ? "active" : "")}>
-                  Courses
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/grades" className={({ isActive }) => (isActive ? "active" : "")}>
-                  Grades
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/performance" className={({ isActive }) => (isActive ? "active" : "")}>
-                  Performance &<br />Well-being
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/recommendations" className={({ isActive }) => (isActive ? "active" : "")}>
-                  Personalized Recommendations
-                </NavLink>
-              </li>
+              <li><NavLink to="/courses" className={({ isActive }) => isActive ? "active" : ""}>Courses</NavLink></li>
+              <li><NavLink to="/grades" className={({ isActive }) => isActive ? "active" : ""}>Grades</NavLink></li>
+              <li><NavLink to="/performance" className={({ isActive }) => isActive ? "active" : ""}>Performance &<br/>Well-being</NavLink></li>
+              <li><NavLink to="/recommendations" className={({ isActive }) => isActive ? "active" : ""}>Personalized Recommendations</NavLink></li>
             </>
           )}
 
-          <li>
-            <NavLink to="/profile" className={({ isActive }) => (isActive ? "active" : "")}>
-              Profile
-            </NavLink>
-          </li>
-          {!isInstructor && (
-          <li>
-              <NavLink to="/privacy" className={({ isActive }) => (isActive ? "active" : "")}>
-                Privacy & Consent
-              </NavLink>
-          </li>
-          )}
-          <li>
-            <span className="nav-logout-link" onClick={() => setShowLogoutModal(true)}>
-              Logout
-            </span>
-          </li>
+          <li><NavLink to="/profile" className={({ isActive }) => isActive ? "active" : ""}>Profile</NavLink></li>
+          {!isInstructor && <li><NavLink to="/privacy" className={({ isActive }) => isActive ? "active" : ""}>Privacy & Consent</NavLink></li>}
+          <li><span className="nav-logout-link" onClick={() => setShowLogoutModal(true)}>Logout</span></li>
         </ul>
       </nav>
 
@@ -115,18 +77,12 @@ function Dashboard() {
             </section>
 
             <section className="dashboard-tiles">
-              <div className="tile-card">
-                <h3>Mathematics 2</h3>
-                <p>Linear Algebra, Statistics</p>
-              </div>
-              <div className="tile-card">
-                <h3>Computer Networks</h3>
-                <p>OSI Model, Routing, Protocols</p>
-              </div>
-              <div className="tile-card">
-                <h3>Software Engineering</h3>
-                <p>Agile, Scrum, Version Control</p>
-              </div>
+              {courses.length > 0 ? courses.map((course) => (
+                <div key={course.id} className="tile-card">
+                  <h3>{course.title}</h3>
+                  <h4>{course.type === "core" ? "Core Module" : `Specialization: ${course.specialization}`}</h4>
+                </div>
+              )) : <p>Loading courses...</p>}
             </section>
           </>
         ) : (
@@ -144,7 +100,7 @@ function Dashboard() {
               </div>
               <div className="tile-card">
                 <h3>Identify At-Risk Students</h3>
-                <p>Low grades, drop in interaction, etc. </p>
+                <p>Low grades, drop in interaction, etc.</p>
               </div>
               <div className="tile-card">
                 <h3>Send Academic Recommendations</h3>
@@ -161,18 +117,11 @@ function Dashboard() {
           <div className="logout-modal">
             <h2>Do you want to logout?</h2>
             <div className="logout-buttons">
-              <button
-                className="yes-button"
-                onClick={() => {
-                  localStorage.clear();
-                  navigate("/");
-                }}
-              >
-                Yes
-              </button>
-              <button className="no-button" onClick={() => setShowLogoutModal(false)}>
-                No
-              </button>
+              <button className="yes-button" onClick={() => {
+                localStorage.clear();
+                navigate("/");
+              }}>Yes</button>
+              <button className="no-button" onClick={() => setShowLogoutModal(false)}>No</button>
             </div>
           </div>
         </div>

@@ -10,65 +10,7 @@ function ManageUsers() {
   const [selectedRole, setSelectedRole] = useState("Student");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      firstName: "Alice",
-      lastName: "Johnson",
-      email: "alice@uni.edu",
-      role: "Student",
-      program: "IPM",
-      matricNo: "S12345",
-      phone: "+49 123456789",
-      dob: "2000-01-01",
-      address: "123 Main St",
-      department: "CS & Engineering",
-      intake: "Winter 2025",
-    },
-    {
-      id: 2,
-      firstName: "Bob",
-      lastName: "Smith",
-      email: "bob@uni.edu",
-      role: "Instructor",
-      program: "CTCS",
-      matricNo: "I78901",
-      phone: "+49 987654321",
-      dob: "",
-      address: "",
-      department: "CS & Engineering",
-      intake: "",
-    },
-    {
-      id: 3,
-      firstName: "Claire",
-      lastName: "Lee",
-      email: "claire@uni.edu",
-      role: "Student",
-      program: "AI Fundamentals",
-      matricNo: "S54321",
-      phone: "+49 111222333",
-      dob: "1999-05-15",
-      address: "456 Elm St",
-      department: "CS & Engineering",
-      intake: "Summer 2024",
-    },
-    {
-      id: 4,
-      firstName: "Derek",
-      lastName: "Ray",
-      email: "derek@uni.edu",
-      role: "Admin",
-      program: "-",
-      matricNo: "A00001",
-      phone: "",
-      dob: "",
-      address: "",
-      department: "",
-      intake: "",
-    },
-  ]);
-
+  const [users, setUsers] = useState([]);
   const [formVisible, setFormVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
@@ -88,7 +30,23 @@ function ManageUsers() {
     localStorage.setItem("menuOpen", menuOpen);
   }, [menuOpen]);
 
-  const filteredUsers = users.filter(user => user.role === selectedRole);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:5000/api/users/");
+      const data = await res.json();
+      setUsers(data);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+    }
+  };
+
+  const filteredUsers = users.filter(
+    user => user.role?.toLowerCase() === selectedRole.toLowerCase()
+  );
 
   const handleFormChange = e => {
     const { name, value } = e.target;
@@ -118,25 +76,41 @@ function ManageUsers() {
     setFormVisible(true);
   };
 
-  const handleDelete = id => {
-    setUsers(prev => prev.filter(user => user.id !== id));
+  const handleDelete = async id => {
+    try {
+      const res = await fetch(`http://127.0.0.1:5000/api/users/${id}`, { method: "DELETE" });
+      if (res.ok) fetchUsers();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleFormSubmit = e => {
+  const handleFormSubmit = async e => {
     e.preventDefault();
-    if (editingUser) {
-      setUsers(prev =>
-        prev.map(u => (u.id === editingUser.id ? { ...editingUser, ...formData } : u))
-      );
-    } else {
-      const newUser = {
-        id: Date.now(),
-        ...formData,
-        role: selectedRole,
-      };
-      setUsers(prev => [...prev, newUser]);
+    try {
+      if (editingUser) {
+        await fetch(`http://127.0.0.1:5000/api/users/${editingUser._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+      } else {
+        await fetch("http://127.0.0.1:5000/api/users/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...formData, role: selectedRole }),
+        });
+      }
+      setFormVisible(false);
+      fetchUsers();
+    } catch (err) {
+      console.error(err);
     }
+  };
+
+  const handleCancel = () => {
     setFormVisible(false);
+    setEditingUser(null);
   };
 
   const handleLogoutYes = () => {
@@ -158,6 +132,7 @@ function ManageUsers() {
           <li><NavLink to="/admin/dashboard">Dashboard</NavLink></li>
           <li><NavLink to="/admin/manage-users" className="active">Manage Users</NavLink></li>
           <li><NavLink to="/admin/manage-programs">Manage Programs</NavLink></li>
+          <li><NavLink to="/admin/profile" className="active">Profile</NavLink></li>
           <li>
             <span onClick={() => setShowLogoutModal(true)} className="nav-logout-link">Logout</span>
           </li>
@@ -178,7 +153,7 @@ function ManageUsers() {
               onClick={() => setSelectedRole(role)}
             >
               <h3>{role}s</h3>
-              <p>{users.filter(user => user.role === role).length} user(s)</p>
+              <p>{users.filter(user => user.role?.toLowerCase() === role.toLowerCase()).length} user(s)</p>
             </div>
           ))}
         </div>
@@ -196,17 +171,17 @@ function ManageUsers() {
             <input name="email" placeholder="Email" type="email" value={formData.email} onChange={handleFormChange} required />
             {selectedRole !== "Admin" && (
               <>
-                <input name="program" placeholder="Program" value={formData.program} onChange={handleFormChange} required />
-                <input name="matricNo" placeholder="Matriculation Number" value={formData.matricNo} onChange={handleFormChange} required />
-                <input name="phone" placeholder="Phone" value={formData.phone} onChange={handleFormChange} />
-                <input name="dob" type="date" placeholder="Date of Birth" value={formData.dob} onChange={handleFormChange} />
-                <input name="address" placeholder="Address" value={formData.address} onChange={handleFormChange} />
-                <input name="department" placeholder="Department" value={formData.department} onChange={handleFormChange} />
-                <input name="intake" placeholder="Intake" value={formData.intake} onChange={handleFormChange} />
+                <input name="program" placeholder="Program" value={formData.program || ""} onChange={handleFormChange} />
+                <input name="matricNo" placeholder="Matriculation Number" value={formData.matricNo || ""} onChange={handleFormChange} />
+                <input name="phone" placeholder="Phone" value={formData.phone || ""} onChange={handleFormChange} />
+                <input name="dob" type="date" placeholder="Date of Birth" value={formData.dob || ""} onChange={handleFormChange} />
+                <input name="address" placeholder="Address" value={formData.address || ""} onChange={handleFormChange} />
+                <input name="department" placeholder="Department" value={formData.department || ""} onChange={handleFormChange} />
+                <input name="intake" placeholder="Intake" value={formData.intake || ""} onChange={handleFormChange} />
               </>
             )}
             <button type="submit" className="submit-button">{editingUser ? "Update" : "Add"}</button>
-            <button type="button" onClick={() => setFormVisible(false)} className="cancel-button">Cancel</button>
+            <button type="button" onClick={handleCancel} className="cancel-button">Cancel</button>
           </form>
         )}
 
@@ -232,21 +207,27 @@ function ManageUsers() {
             </thead>
             <tbody>
               {filteredUsers.map(user => (
-                <tr key={user.id}>
-                  <td>{user.firstName}</td>
-                  <td>{user.lastName}</td>
-                  <td>{user.email}</td>
-                  {selectedRole !== "Admin" && <td>{user.program}</td>}
-                  {selectedRole !== "Admin" && <td>{user.matricNo}</td>}
-                  {selectedRole !== "Admin" && <td>{user.phone}</td>}
-                  {selectedRole !== "Admin" && (<td>{user.dob ? new Date(user.dob).toLocaleDateString("en-GB").replace(/\//g, "-") : ""}</td>)}
-                  {selectedRole !== "Admin" && <td>{user.address}</td>}
-                  {selectedRole !== "Admin" && <td>{user.department}</td>}
-                  {selectedRole !== "Admin" && <td>{user.intake}</td>}
-                  <td>{user.role}</td>
+                <tr key={user._id || user.id}>
+                  <td>{user.firstName || "N/A"}</td>
+                  <td>{user.lastName || "N/A"}</td>
+                  <td>{user.email || "N/A"}</td>
+                  {selectedRole !== "Admin" && <td>{user.program || "N/A"}</td>}
+                  {selectedRole !== "Admin" && <td>{user.matricNo || "N/A"}</td>}
+                  {selectedRole !== "Admin" && <td>{user.phone || "N/A"}</td>}
+                  {selectedRole !== "Admin" && (
+                    <td>
+                      {user.dob
+                        ? new Date(user.dob).toLocaleDateString("en-GB").replace(/\//g, "-")
+                        : "N/A"}
+                    </td>
+                  )}
+                  {selectedRole !== "Admin" && <td>{user.address || "N/A"}</td>}
+                  {selectedRole !== "Admin" && <td>{user.department || "N/A"}</td>}
+                  {selectedRole !== "Admin" && <td>{user.intake || "N/A"}</td>}
+                  <td>{user.role || "N/A"}</td>
                   <td>
-                    <button className="action-button update" onClick={() => openEditForm(user)}>Update</button>
-                    <button className="action-button delete" onClick={() => handleDelete(user.id)}>Delete</button>
+                    <button className="action-button update" onClick={() => openEditForm(user)}>Edit</button>
+                    <button className="action-button delete" onClick={() => handleDelete(user._id || user.id)}>Delete</button>
                   </td>
                 </tr>
               ))}

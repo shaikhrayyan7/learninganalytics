@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+// src/pages/Profile.js
+import React, { useState, useRef, useEffect } from "react";
 import logo from "../assets/unilytics_logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import "./Dashboard.css";
@@ -13,32 +14,20 @@ function Profile() {
   const [profileImage, setProfileImage] = useState(blankProfile);
   const [isEditing, setIsEditing] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [backupData, setBackupData] = useState({});
   const navigate = useNavigate();
 
-  const initialStudentData = {
-    firstName: "",
-    lastName: "",
-    email: email,
-    matriculationNumber: "",
-    number: "+49",
-    dob: "",
-    address: "",
-    course: "Applied Computer Science",
-    department: "CS & Engineering",
-    intake: "Winter 2025",
-  };
-
-  const initialInstructorData = {
-    fullName: "",
-    email: email,
-    department: "CS & Engineering",
-    office: "",
-    phone: "+49",
-    specialization: "",
-  };
-
-  const [formData, setFormData] = useState(isInstructor ? initialInstructorData : initialStudentData);
-  const [backupData, setBackupData] = useState(formData);
+  // Fetch profile data on mount
+  useEffect(() => {
+    fetch(`http://127.0.0.1:5000/profile/${email}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setFormData(data);
+        setBackupData(data);
+      })
+      .catch((err) => console.error("Error fetching profile:", err));
+  }, [email]);
 
   const toggleMenu = () => {
     const newState = !menuOpen;
@@ -70,8 +59,17 @@ function Profile() {
   };
 
   const handleUpdate = () => {
-    console.log("Updated data:", formData);
-    setIsEditing(false);
+    fetch(`http://127.0.0.1:5000/profile/${email}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Profile updated:", data);
+        setIsEditing(false);
+      })
+      .catch((err) => console.error("Error updating profile:", err));
   };
 
   return (
@@ -137,71 +135,71 @@ function Profile() {
           {isInstructor ? (
             <div className="profile-grid">
               <div className="form-group">
-                <label>Full Name</label>
-                <input name="fullName" value={formData.fullName} onChange={handleChange} disabled={!isEditing} />
+                <label>First Name</label>
+                <input name="firstName" value={formData.firstName || ""} onChange={handleChange} disabled={!isEditing} />
+              </div>
+              <div className="form-group">
+                <label>Last Name</label>
+                <input name="lastName" value={formData.lastName || ""} onChange={handleChange} disabled={!isEditing} />
               </div>
               <div className="form-group">
                 <label>Email</label>
-                <input value={formData.email} disabled />
+                <input value={formData.email || ""} disabled />
               </div>
               <div className="form-group">
                 <label>Department</label>
-                <input name="department" value={formData.department} onChange={handleChange} disabled={!isEditing} />
+                <input name="department" value={formData.department || ""} onChange={handleChange} disabled={!isEditing} />
               </div>
               <div className="form-group">
                 <label>Office</label>
-                <input name="office" value={formData.office} onChange={handleChange} disabled={!isEditing} />
+                <input name="office" value={formData.office || ""} onChange={handleChange} disabled={!isEditing} />
               </div>
               <div className="form-group">
                 <label>Phone</label>
-                <input name="phone" value={formData.phone} onChange={handleChange} disabled={!isEditing} />
-              </div>
-              <div className="form-group">
-                <label>Specialization</label>
-                <input name="specialization" value={formData.specialization} onChange={handleChange} disabled={!isEditing} />
+                <input name="phone" value={formData.phone || ""} onChange={handleChange} disabled={!isEditing} />
               </div>
             </div>
           ) : (
             <div className="profile-grid">
               <div className="form-group">
                 <label>First Name</label>
-                <input name="firstName" value={formData.firstName} onChange={handleChange} disabled={!isEditing} />
+                <input name="firstName" value={formData.firstName || ""} onChange={handleChange} disabled={!isEditing} />
               </div>
               <div className="form-group">
                 <label>Last Name</label>
-                <input name="lastName" value={formData.lastName} onChange={handleChange} disabled={!isEditing} />
+                <input name="lastName" value={formData.lastName || ""} onChange={handleChange} disabled={!isEditing} />
               </div>
               <div className="form-group">
                 <label>Email</label>
-                <input value={formData.email} disabled />
+                <input value={formData.email || ""} disabled />
               </div>
               <div className="form-group">
                 <label>Matriculation Number</label>
-                <input name="matriculationNumber" value={formData.matriculationNumber} onChange={handleChange} disabled={!isEditing} />
+                <input name="matriculationNumber" value={formData.matriculationNumber || ""} onChange={handleChange} disabled={!isEditing} />
               </div>
               <div className="form-group">
                 <label>Phone (+49)</label>
-                <input name="number" value={formData.number} onChange={handleChange} disabled={!isEditing} />
+                <input name="number" value={formData.number || ""} onChange={handleChange} disabled={!isEditing} />
               </div>
               <div className="form-group">
                 <label>Date of Birth</label>
-                <input type="date" name="dob" value={formData.dob} onChange={handleChange} disabled={!isEditing} />
+                <input type="date" name="dob" value={formData.dob || ""} onChange={handleChange} disabled={!isEditing} />
               </div>
               <div className="form-group">
                 <label>Address</label>
-                <input name="address" value={formData.address} onChange={handleChange} disabled={!isEditing} />
+                <input name="address" value={formData.address || ""} onChange={handleChange} disabled={!isEditing} />
               </div>
               <div className="form-group">
-                <label>Course</label>
-                <input value={formData.course} disabled />
+                <label>Program</label>
+                <input value={formData.program || ""} disabled />
               </div>
               <div className="form-group">
                 <label>Department</label>
-                <input value={formData.department} disabled />
+                <input value={formData.department || ""} disabled />
               </div>
               <div className="form-group">
                 <label>Intake</label>
-                <input value={formData.intake} disabled />
+                <input value={formData.intake || ""} disabled />
               </div>
             </div>
           )}
