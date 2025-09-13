@@ -8,7 +8,7 @@ import blankProfile from "../assets/blank_profile.png";
 
 function Profile() {
   const [menuOpen, setMenuOpen] = useState(localStorage.getItem("menuOpen") === "true");
-  const email = localStorage.getItem("email") || "john.doe@student-dhbw.de";
+  const email = localStorage.getItem("email");
   const isInstructor = email.endsWith("@instructor-dhbw.de");
   const fileInputRef = useRef(null);
   const [profileImage, setProfileImage] = useState(blankProfile);
@@ -16,7 +16,14 @@ function Profile() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [formData, setFormData] = useState({});
   const [backupData, setBackupData] = useState({});
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const navigate = useNavigate();
+
+  // Password notifications & visibility
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [passwordMessageType, setPasswordMessageType] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   // Fetch profile data on mount
   useEffect(() => {
@@ -72,6 +79,34 @@ function Profile() {
       .catch((err) => console.error("Error updating profile:", err));
   };
 
+  const handlePasswordSave = () => {
+    fetch(`http://127.0.0.1:5000/profile/${email}/password`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setPasswordMessage("Password updated successfully!");
+          setPasswordMessageType("success");
+          setFormData({ ...formData, currentPassword: "", newPassword: "" });
+          setShowPasswordForm(false);
+        } else {
+          setPasswordMessage(data.error || "Error updating password");
+          setPasswordMessageType("error");
+        }
+      })
+      .catch((err) => {
+        console.error("Error updating password:", err);
+        setPasswordMessage("Server error. Please try again.");
+        setPasswordMessageType("error");
+      });
+  };
+
   return (
     <div className="dashboard-page">
       {/* HEADER */}
@@ -114,6 +149,7 @@ function Profile() {
 
       {/* MAIN CONTENT */}
       <main className="main-content profile-page">
+        {/* Profile Info */}
         <div className="profile-container">
           <div className="profile-image-wrapper">
             <img
@@ -214,6 +250,74 @@ function Profile() {
               </>
             )}
           </div>
+        </div>
+
+        {/* Password Change Section */}
+        <div className="password-container">
+          <h2>Change your password</h2>
+          {!showPasswordForm ? (
+            <div className="profile-actions" style={{ textAlign: "center" }}>
+              <button className="edit-profile-btn" onClick={() => setShowPasswordForm(true)}>
+                Update
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="form-group password-field">
+                <label>Current Password</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showCurrentPassword ? "text" : "password"}
+                    value={formData.currentPassword || ""}
+                    onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
+                  />
+                  <span
+                    className="toggle-eye"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  >
+                    {showCurrentPassword ? "" : ""}
+                  </span>
+                </div>
+              </div>
+
+              <div className="form-group password-field">
+                <label>New Password</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    value={formData.newPassword || ""}
+                    onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                  />
+                  <span
+                    className="toggle-eye"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    {showNewPassword ? "" : ""}
+                  </span>
+                </div>
+              </div>
+
+              {passwordMessage && (
+                <div className={`password-message ${passwordMessageType}`}>
+                  {passwordMessage}
+                </div>
+              )}
+
+              <div className="profile-actions" style={{ textAlign: "center" }}>
+                <button className="update-btn" onClick={handlePasswordSave}>Save</button>
+                <button
+                  className="cancel-btn"
+                  onClick={() => {
+                    setShowPasswordForm(false);
+                    setFormData({ ...formData, currentPassword: "", newPassword: "" });
+                    setPasswordMessage("");
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </main>
 

@@ -6,19 +6,21 @@ import "./ManagePrograms.css";
 import "./ProgramDetails.css";
 
 function ProgramDetails() {
-  const { id } = useParams(); // program ID
+  const { id } = useParams();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(localStorage.getItem("menuOpen") === "true");
   const [program, setProgram] = useState(null);
   const [coursesBySemester, setCoursesBySemester] = useState([]);
-  const [newCourse, setNewCourse] = useState({ title: "", semester: 1, creditPoints: 0, type: "core" });
+  const [newCourse, setNewCourse] = useState({ title: "", semester:"", creditPoints: "", type: "core" });
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState(null);
 
   useEffect(() => {
     localStorage.setItem("menuOpen", menuOpen);
   }, [menuOpen]);
 
   useEffect(() => {
-    // Fetch program info
     fetch(`http://127.0.0.1:5000/api/programs`)
       .then((res) => res.json())
       .then((data) => {
@@ -34,10 +36,9 @@ function ProgramDetails() {
     fetch(`http://127.0.0.1:5000/api/programs/${id}/courses`)
       .then((res) => res.json())
       .then((data) => {
-        // Add "isEditing" flag for frontend editing
         const newData = data.map((sem) => ({
           ...sem,
-          courses: sem.courses.map((c) => ({ ...c, isEditing: false, newInstructor: "", newStudent: "" })),
+          courses: sem.courses.map((c) => ({ ...c, isEditing: false })),
         }));
         setCoursesBySemester(newData);
       })
@@ -81,36 +82,25 @@ function ProgramDetails() {
     if (res.ok) fetchCourses();
   };
 
-  const handleDeleteCourse = async (courseId) => {
+  const handleDeleteCourse = (course) => {
+    setCourseToDelete(course);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteCourse = async () => {
+    if (!courseToDelete) return;
     const res = await fetch(
-      `http://127.0.0.1:5000/api/programs/${id}/courses/${courseId}`,
+      `http://127.0.0.1:5000/api/programs/${id}/courses/${courseToDelete.id}`,
       { method: "DELETE" }
     );
     if (res.ok) fetchCourses();
+    setShowDeleteModal(false);
+    setCourseToDelete(null);
   };
 
-  const handleAddInstructor = (course, semIndex) => {
-    if (!course.newInstructor) return;
-    course.instructors = course.instructors ? [...course.instructors, course.newInstructor] : [course.newInstructor];
-    course.newInstructor = "";
-    handleSaveCourse(course, semIndex);
-  };
-
-  const handleRemoveInstructor = (course, semIndex, index) => {
-    course.instructors.splice(index, 1);
-    handleSaveCourse(course, semIndex);
-  };
-
-  const handleAddStudent = (course, semIndex) => {
-    if (!course.newStudent) return;
-    course.students = course.students ? [...course.students, course.newStudent] : [course.newStudent];
-    course.newStudent = "";
-    handleSaveCourse(course, semIndex);
-  };
-
-  const handleRemoveStudent = (course, semIndex, index) => {
-    course.students.splice(index, 1);
-    handleSaveCourse(course, semIndex);
+  const cancelDeleteCourse = () => {
+    setShowDeleteModal(false);
+    setCourseToDelete(null);
   };
 
   if (!program) {
@@ -135,7 +125,7 @@ function ProgramDetails() {
           <li><span className="nav-link" onClick={() => navigate("/admin/dashboard")}>Dashboard</span></li>
           <li><span className="nav-link" onClick={() => navigate("/admin/manage-users")}>Manage Users</span></li>
           <li><span className="nav-link active" onClick={() => navigate("/admin/manage-programs")}>Manage Programs</span></li>
-          <li><span className="nav-link active" onClick={() => navigate("/admin/profile")}>Profile</span></li>
+          <li><span className="nav-link" onClick={() => navigate("/admin/profile")}>Profile</span></li>
           <li><span className="nav-logout-link" onClick={() => navigate("/")}>Logout</span></li>
         </ul>
       </nav>
@@ -233,71 +223,19 @@ function ProgramDetails() {
                       <>
                         <h4>{course.title}</h4>
                         <p><strong>Type:</strong> {course.type || "-"}</p>
-                        {course.specialization && <p><strong>Specialization:</strong> {course.specialization}</p>}
                         <p><strong>Credit Points:</strong> {course.creditPoints || "-"}</p>
                         <div style={{ marginTop: "0.5rem" }}>
                           <button className="save-button" onClick={() => handleEditCourse(semIndex, index)}>Edit</button>
-                          <button className="delete-button" onClick={() => handleDeleteCourse(course.id)}>Delete</button>
+                          <button className="delete-button" onClick={() => handleDeleteCourse(course)}>Delete</button>
+                          <button
+                            className="manage-button"
+                            onClick={() => navigate(`/admin/programs/${id}/courses/${course.id}`)}
+                          >
+                            Manage Course
+                          </button>
                         </div>
                       </>
                     )}
-
-                    {/* Instructors */}
-                    <div className="instructors-list">
-                      {course.instructors && course.instructors.map((inst, i) => (
-                        <div className="instructor-item" key={i}>
-                          <span>{inst}</span>
-                          <button className="remove-instructor-btn" onClick={() => handleRemoveInstructor(course, semIndex, i)}>×</button>
-                        </div>
-                      ))}
-                      {course.isEditing && (
-                        <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.4rem" }}>
-                          <input
-                            type="text"
-                            placeholder="Instructor Name"
-                            value={course.newInstructor}
-                            onChange={(e) => {
-                              const updated = [...coursesBySemester];
-                              updated[semIndex].courses[index].newInstructor = e.target.value;
-                              setCoursesBySemester(updated);
-                            }}
-                          />
-                          <button className="add-instructor-btn" onClick={() => handleAddInstructor(course, semIndex)}>Add</button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Students */}
-                    <div className="students-section">
-                      <div className={`students-list-container`}>
-                        <ul>
-                          {course.students && course.students.map((stu, i) => (
-                            <li key={i}>
-                              {stu}
-                              {course.isEditing && (
-                                <button className="remove-student-btn" onClick={() => handleRemoveStudent(course, semIndex, i)}>×</button>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      {course.isEditing && (
-                        <div className="students-add">
-                          <input
-                            type="text"
-                            placeholder="Student Name"
-                            value={course.newStudent}
-                            onChange={(e) => {
-                              const updated = [...coursesBySemester];
-                              updated[semIndex].courses[index].newStudent = e.target.value;
-                              setCoursesBySemester(updated);
-                            }}
-                          />
-                          <button onClick={() => handleAddStudent(course, semIndex)}>Add Student</button>
-                        </div>
-                      )}
-                    </div>
-
                   </div>
                 ))}
               </div>
@@ -305,6 +243,20 @@ function ProgramDetails() {
           ))}
         </section>
       </main>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Delete Course</h3>
+            <p>Are you sure you want to delete "{courseToDelete.title}"?</p>
+            <div className="modal-actions">
+              <button className="confirm-btn" onClick={confirmDeleteCourse}>Yes, Delete</button>
+              <button className="cancel-btn" onClick={cancelDeleteCourse}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

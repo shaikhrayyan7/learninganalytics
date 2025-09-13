@@ -38,16 +38,23 @@ function Recommendations() {
     const recs = recommendations[category] || { classWide: [], personalized: [] };
     return (
       <div>
+        {/* Class-wide recommendations */}
         <ul>
-          {recs.classWide.map((tip, index) => <li key={`cw-${index}`}>{tip}</li>)}
+          {recs.classWide.map((tip, index) => {
+            const text = typeof tip === "string" ? tip : `${tip.message} (${tip.instructor})`;
+            return <li key={`cw-${index}`}>{text}</li>;
+          })}
         </ul>
+
+        {/* Personalized recommendations */}
         {recs.personalized.length > 0 && (
           <div className="personalized-section">
             <strong>👤 Personally recommended by your instructor:</strong>
             <ul>
-              {recs.personalized.map((tip, index) => (
-                <li key={`pr-${index}`} className="personal-tip">{tip}</li>
-              ))}
+              {recs.personalized.map((tip, index) => {
+                const text = typeof tip === "string" ? tip : `${tip.message} (${tip.instructor})`;
+                return <li key={`pr-${index}`} className="personal-tip">{text}</li>;
+              })}
             </ul>
           </div>
         )}

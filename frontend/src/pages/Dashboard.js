@@ -94,17 +94,14 @@ function Dashboard() {
             </section>
 
             <section className="dashboard-tiles">
-              <div className="tile-card">
+              <div className="tile-card" onClick={() => navigate("/instructor/class-analytics")}>
                 <h3>Class-wide Analytics</h3>
-                <p>Engagement, attendance & performance trends</p>
               </div>
-              <div className="tile-card">
-                <h3>Identify At-Risk Students</h3>
-                <p>Low grades, drop in interaction, etc.</p>
+              <div className="tile-card" onClick={() => navigate("/instructor/my-teaching")}>
+                <h3>My Teaching</h3>
               </div>
-              <div className="tile-card">
+              <div className="tile-card" onClick={() => navigate("/instructor/recommendations")}>
                 <h3>Send Academic Recommendations</h3>
-                <p>Push study resources & mentor notes</p>
               </div>
             </section>
           </>

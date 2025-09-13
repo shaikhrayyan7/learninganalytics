@@ -22,6 +22,7 @@ import ManageUsers from "./admin/ManageUsers";
 import ManagePrograms from './admin/ManagePrograms';
 import ProgramDetails from "./admin/ProgramDetails";
 import AdminProfile from "./admin/AdminProfile";
+import CourseManagement from "./admin/CourseManagement";
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
         <Route path="/admin/manage-programs" element={<ManagePrograms />} />
         <Route path="/admin/manage-programs/:id" element={<ProgramDetails />} />
         <Route path="/admin/profile" element={<AdminProfile />} />
+        <Route path="/admin/programs/:programId/courses/:courseId" element={<CourseManagement />} />
       </Routes>
     </Router>
   );

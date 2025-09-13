@@ -13,8 +13,8 @@ function CourseContent() {
   const [course, setCourse] = useState(null);
   const navigate = useNavigate();
 
-  const email = localStorage.getItem("email") || "student@student-dhbw.de";
-  const role = localStorage.getItem("role") || "student";
+  const email = localStorage.getItem("email") ;
+  const role = localStorage.getItem("role") ;
   const username = email.split("@")[0];
 
   useEffect(() => {

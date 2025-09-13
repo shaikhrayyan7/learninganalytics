@@ -3,64 +3,87 @@ import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/unilytics_logo.png";
 import "./SendRecommendations.css";
 
-const courses = {
-  "International Project Management": ["Alice", "Bob", "Charlie"],
-  "Current Topics in CS": ["David", "Eva", "Frank"],
-};
+const categories = ["Study Tips", "Upcoming Deadlines", "Workshops & Resources", "Well-being Tips"];
 
 function SendRecommendations() {
   const [menuOpen, setMenuOpen] = useState(localStorage.getItem("menuOpen") === "true");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
-  const email = localStorage.getItem("email") || "drsmith@instructor-dhbw.de";
-  const username = email.split("@")[0];
+  const email = localStorage.getItem("email");
+
+  const [courses, setCourses] = useState({});
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState("");
+  const [personalMessage, setPersonalMessage] = useState("");
+  const [personalCategory, setPersonalCategory] = useState(categories[0]);
+  const [personalSuccess, setPersonalSuccess] = useState(false);
+
+  const [classCourse, setClassCourse] = useState("");
+  const [classMessage, setClassMessage] = useState("");
+  const [classCategory, setClassCategory] = useState(categories[0]);
+  const [classSuccess, setClassSuccess] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("menuOpen", menuOpen);
   }, [menuOpen]);
+
+  // Fetch courses and students for this instructor from your backend
+  useEffect(() => {
+    fetch(`http://127.0.0.1:5000/api/instructor/${email}/courses`)
+      .then(res => res.json())
+      .then(data => {
+        setCourses(data);
+        const firstCourse = Object.keys(data)[0] || "";
+        setSelectedCourse(firstCourse);
+        setClassCourse(firstCourse);
+        setSelectedStudent(data[firstCourse]?.[0] || "");
+      })
+      .catch(err => console.error(err));
+  }, [email]);
 
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
   };
 
-  // Personalized
-  const [selectedCourse, setSelectedCourse] = useState(Object.keys(courses)[0]);
-  const [selectedStudent, setSelectedStudent] = useState(courses[Object.keys(courses)[0]][0]);
-  const [personalMessage, setPersonalMessage] = useState("");
-  const [personalSuccess, setPersonalSuccess] = useState(false);
-
-  // Class-wide
-  const [classCourse, setClassCourse] = useState(Object.keys(courses)[0]);
-  const [classMessage, setClassMessage] = useState("");
-  const [classSuccess, setClassSuccess] = useState(false);
-
   const handlePersonalSend = () => {
     if (!personalMessage.trim()) return;
 
-    console.log("📤 Personal Recommendation", {
-      course: selectedCourse,
-      student: selectedStudent,
-      message: personalMessage,
-    });
-
-    setPersonalSuccess(true);
-    setPersonalMessage("");
-    setTimeout(() => setPersonalSuccess(false), 3000);
+    fetch("http://127.0.0.1:5000/api/instructor/personal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        student: selectedStudent,
+        message: personalMessage,
+        instructor: email,
+        category: personalCategory,
+        course: selectedCourse,
+      }),
+    }).then(() => {
+      setPersonalSuccess(true);
+      setPersonalMessage("");
+      setTimeout(() => setPersonalSuccess(false), 3000);
+    }).catch(err => console.error(err));
   };
 
   const handleClassSend = () => {
     if (!classMessage.trim()) return;
 
-    console.log("📤 Class-wide Recommendation", {
-      course: classCourse,
-      message: classMessage,
-    });
-
-    setClassSuccess(true);
-    setClassMessage("");
-    setTimeout(() => setClassSuccess(false), 3000);
+    fetch("http://127.0.0.1:5000/api/instructor/class", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: classMessage,
+        instructor: email,
+        category: classCategory,
+        course: classCourse,
+      }),
+    }).then(() => {
+      setClassSuccess(true);
+      setClassMessage("");
+      setTimeout(() => setClassSuccess(false), 3000);
+    }).catch(err => console.error(err));
   };
 
   return (
@@ -78,7 +101,7 @@ function SendRecommendations() {
           <li><NavLink to="/instructor/my-teaching">My Teaching</NavLink></li>
           <li><NavLink to="/instructor/class-analytics">Class Analytics</NavLink></li>
           <li><NavLink to="/instructor/student-list">Student List</NavLink></li>
-          <li><NavLink to="/instructor/recommendations" className="active">Send Recommendations</NavLink></li>
+          <li><NavLink to="/instructor/send-recommendations" className="active">Send Recommendations</NavLink></li>
           <li><NavLink to="/profile">Profile</NavLink></li>
           <li><span className="nav-logout-link" onClick={() => setShowLogoutModal(true)}>Logout</span></li>
         </ul>
@@ -100,12 +123,10 @@ function SendRecommendations() {
                 value={selectedCourse}
                 onChange={(e) => {
                   setSelectedCourse(e.target.value);
-                  setSelectedStudent(courses[e.target.value][0]);
+                  setSelectedStudent(courses[e.target.value]?.[0] || "");
                 }}
               >
-                {Object.keys(courses).map((course) => (
-                  <option key={course} value={course}>{course}</option>
-                ))}
+                {Object.keys(courses).map(course => <option key={course} value={course}>{course}</option>)}
               </select>
             </div>
 
@@ -115,9 +136,19 @@ function SendRecommendations() {
                 value={selectedStudent}
                 onChange={(e) => setSelectedStudent(e.target.value)}
               >
-                {courses[selectedCourse].map((student) => (
+                {(courses[selectedCourse] || []).map(student => (
                   <option key={student} value={student}>{student}</option>
                 ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Category</label>
+              <select
+                value={personalCategory}
+                onChange={(e) => setPersonalCategory(e.target.value)}
+              >
+                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </select>
             </div>
 
@@ -130,11 +161,7 @@ function SendRecommendations() {
               />
             </div>
 
-            <button
-              className="send-btn"
-              onClick={handlePersonalSend}
-              disabled={!personalMessage.trim()}
-            >
+            <button className="send-btn" onClick={handlePersonalSend} disabled={!personalMessage.trim()}>
               Send to Student
             </button>
 
@@ -151,9 +178,17 @@ function SendRecommendations() {
                 value={classCourse}
                 onChange={(e) => setClassCourse(e.target.value)}
               >
-                {Object.keys(courses).map((course) => (
-                  <option key={course} value={course}>{course}</option>
-                ))}
+                {Object.keys(courses).map(course => <option key={course} value={course}>{course}</option>)}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Category</label>
+              <select
+                value={classCategory}
+                onChange={(e) => setClassCategory(e.target.value)}
+              >
+                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </select>
             </div>
 
@@ -166,11 +201,7 @@ function SendRecommendations() {
               />
             </div>
 
-            <button
-              className="send-btn"
-              onClick={handleClassSend}
-              disabled={!classMessage.trim()}
-            >
+            <button className="send-btn" onClick={handleClassSend} disabled={!classMessage.trim()}>
               Send to All Students
             </button>
 
@@ -193,9 +224,7 @@ function SendRecommendations() {
       )}
 
       {/* FOOTER */}
-      <footer className="footer">
-        &copy; 2025 Unilytics. All rights reserved.
-      </footer>
+      <footer className="footer">&copy; 2025 Unilytics. All rights reserved.</footer>
     </div>
   );
 }
