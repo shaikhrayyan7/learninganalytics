@@ -88,6 +88,7 @@ function ManageUsers() {
       department: "",
       intake: "",
       office: "",
+      password: "",
     });
     setFormVisible(true);
   };
@@ -228,6 +229,18 @@ function ManageUsers() {
                 <input name="department" placeholder="Department" value={formData.department} onChange={handleFormChange} />
                 <input name="intake" placeholder="Intake" value={formData.intake} onChange={handleFormChange} />
               </>
+            )}
+
+            {!editingUser && (
+              <input
+                type="password"
+                name="password"
+                placeholder="New Password"
+                value={formData.password || ""}
+                onChange={handleFormChange}
+                required
+                className="user-form-input"
+              />
             )}
 
             {selectedRole === "Instructor" && (

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+import bcrypt
 
 users_bp = Blueprint('users_bp', __name__, url_prefix='/api/users')
 
@@ -44,7 +45,18 @@ def get_user(id):
 @users_bp.route("/", methods=["POST"])
 def add_user():
     data = request.json
+
+    # store lowercase role for consistency
     data["role"] = data.get("role", "").lower()
+
+    # Hash the password if provided
+    if "password" in data and data["password"]:
+        hashed_password = bcrypt.hashpw(data["password"].encode("utf-8"), bcrypt.gensalt())
+        data["password"] = hashed_password.decode("utf-8")
+    else:
+        # Optional: generate a random initial password if none is provided
+        pass
+
     result = users_col.insert_one(data)
     new_user = users_col.find_one({"_id": result.inserted_id})
     return jsonify(normalize_user(new_user)), 201

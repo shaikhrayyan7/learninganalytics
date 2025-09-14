@@ -50,11 +50,13 @@ function Dashboard() {
               <li><NavLink to="/instructor/class-analytics" className={({ isActive }) => isActive ? "active" : ""}>Class Analytics</NavLink></li>
               <li><NavLink to="/instructor/student-list">Student List</NavLink></li>
               <li><NavLink to="/instructor/recommendations" className={({ isActive }) => isActive ? "active" : ""}>Send Recommendations</NavLink></li>
+              <li><NavLink to="/instructor/survey" className="active">Create Survey</NavLink></li>
             </>
           ) : (
             <>
               <li><NavLink to="/courses" className={({ isActive }) => isActive ? "active" : ""}>Courses</NavLink></li>
               <li><NavLink to="/grades" className={({ isActive }) => isActive ? "active" : ""}>Grades</NavLink></li>
+              <li><NavLink to="/survey" className="active">My Surveys</NavLink></li>
               <li><NavLink to="/performance" className={({ isActive }) => isActive ? "active" : ""}>Performance &<br/>Well-being</NavLink></li>
               <li><NavLink to="/recommendations" className={({ isActive }) => isActive ? "active" : ""}>Personalized Recommendations</NavLink></li>
             </>

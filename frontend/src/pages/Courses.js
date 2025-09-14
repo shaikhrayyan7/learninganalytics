@@ -77,6 +77,7 @@ function Courses() {
           <li><NavLink to="/dashboard">Dashboard</NavLink></li>
           <li><NavLink to="/courses" className="active">Courses</NavLink></li>
           <li><NavLink to="/grades">Grades</NavLink></li>
+          <li><NavLink to="/survey" className="active">My Surveys</NavLink></li>
           <li><NavLink to="/performance">Performance & <br /> Well-being</NavLink></li>
           <li><NavLink to="/recommendations">Personalized Recommendations</NavLink></li>
           <li><NavLink to="/profile">Profile</NavLink></li>

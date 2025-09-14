@@ -83,6 +83,7 @@ function CourseContent() {
           {role === "student" && (
             <>
               <li><NavLink to="/grades">Grades</NavLink></li>
+              <li><NavLink to="/survey" className="active">My Surveys</NavLink></li>
               <li><NavLink to="/performance">Performance &<br /> Well-being</NavLink></li>
               <li><NavLink to="/recommendations">Personalized Recommendations</NavLink></li>
             </>

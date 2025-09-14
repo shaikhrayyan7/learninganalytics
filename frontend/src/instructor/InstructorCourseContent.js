@@ -87,6 +87,7 @@ function InstructorCourseContent() {
           <ul>
             <li><NavLink to="/dashboard">Dashboard</NavLink></li>
             <li><NavLink to="/instructor/my-teaching">My Teaching</NavLink></li>
+            <li><NavLink to="/instructor/survey" className="active">Create Survey</NavLink></li>
             <li><NavLink to="/profile">Profile</NavLink></li>
             <li><span className="nav-logout-link" onClick={() => setShowLogoutModal(true)}>Logout</span></li>
           </ul>

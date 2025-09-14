@@ -76,6 +76,7 @@ function StudentList() {
           <li><NavLink to="/instructor/class-analytics">Class Analytics</NavLink></li>
           <li><NavLink to="/instructor/student-list">Student List</NavLink></li>
           <li><NavLink to="/instructor/recommendations">Send Recommendations</NavLink></li>
+          <li><NavLink to="/instructor/survey" className="active">Create Survey</NavLink></li>
           <li><NavLink to="/profile">Profile</NavLink></li>
           <li><span className="nav-logout-link" onClick={() => setShowLogoutModal(true)}>Logout</span></li>
         </ul>

@@ -23,6 +23,8 @@ import ManagePrograms from './admin/ManagePrograms';
 import ProgramDetails from "./admin/ProgramDetails";
 import AdminProfile from "./admin/AdminProfile";
 import CourseManagement from "./admin/CourseManagement";
+import InstructorSurvey from "./instructor/InstructorSurvey";
+import StudentSurvey from "./pages/StudentSurvey";
 
 function App() {
   return (
@@ -50,6 +52,8 @@ function App() {
         <Route path="/admin/manage-programs/:id" element={<ProgramDetails />} />
         <Route path="/admin/profile" element={<AdminProfile />} />
         <Route path="/admin/programs/:programId/courses/:courseId" element={<CourseManagement />} />
+        <Route path="/instructor/survey" element={<InstructorSurvey />} />
+        <Route path="/survey" element={<StudentSurvey />} /> 
       </Routes>
     </Router>
   );

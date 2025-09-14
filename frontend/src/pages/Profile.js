@@ -125,6 +125,7 @@ function Profile() {
               <li><NavLink to="/instructor/class-analytics">Class Analytics</NavLink></li>
               <li><NavLink to="/instructor/student-list">Student List</NavLink></li>
               <li><NavLink to="/instructor/recommendations">Send Recommendations</NavLink></li>
+              <li><NavLink to="/instructor/survey" className="active">Create Survey</NavLink></li>
               <li><NavLink to="/profile" className="active">Profile</NavLink></li>
               <li>
                 <span onClick={() => setShowLogoutModal(true)} className="nav-logout-link">Logout</span>
@@ -135,6 +136,7 @@ function Profile() {
               <li><NavLink to="/dashboard">Dashboard</NavLink></li>
               <li><NavLink to="/courses">Courses</NavLink></li>
               <li><NavLink to="/grades">Grades</NavLink></li>
+              <li><NavLink to="/survey" className="active">My Surveys</NavLink></li>
               <li><NavLink to="/performance">Performance &<br />Well-being</NavLink></li>
               <li><NavLink to="/recommendations">Personalized Recommendations</NavLink></li>
               <li><NavLink to="/profile" className="active">Profile</NavLink></li>

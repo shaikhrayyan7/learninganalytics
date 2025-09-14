@@ -102,6 +102,7 @@ function Performance() {
           <li><NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>Dashboard</NavLink></li>
           <li><NavLink to="/courses" className={({ isActive }) => isActive ? "active" : ""}>Courses</NavLink></li>
           <li><NavLink to="/grades" className={({ isActive }) => isActive ? "active" : ""}>Grades</NavLink></li>
+          <li><NavLink to="/survey" className="active">My Surveys</NavLink></li>
           <li><NavLink to="/performance" className={({ isActive }) => isActive ? "active" : ""}>Performance & <br /> Well-being</NavLink></li>
           <li><NavLink to="/recommendations" className={({ isActive }) => isActive ? "active" : ""}>Personalized Recommendations</NavLink></li>
           <li><NavLink to="/profile" className={({ isActive }) => isActive ? "active" : ""}>Profile</NavLink></li>
