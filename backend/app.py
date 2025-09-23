@@ -15,6 +15,8 @@ from routes.student_list_bp import student_list_bp
 from routes.course_management_bp import course_management_bp
 from routes.instructor_survey_bp import instructor_survey_bp
 from routes.student_survey_bp import student_survey_bp
+from routes.student_performance_bp import student_performance_bp
+from routes.mock_data_bp import mock_data_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -34,6 +36,8 @@ app.register_blueprint(student_list_bp)
 app.register_blueprint(course_management_bp)
 app.register_blueprint(instructor_survey_bp)
 app.register_blueprint(student_survey_bp)
+app.register_blueprint(student_performance_bp)
+app.register_blueprint(mock_data_bp)
 
 @app.route("/")
 def home():

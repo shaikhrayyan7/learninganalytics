@@ -68,3 +68,21 @@ def get_student_grades(email):
 
     # 5. Convert ObjectId for safety
     return jsonify(convert_objectid(merged))
+
+@student_grades_bp.route("/api/student/<email>/grades", methods=["POST"])
+def add_student_grades(email):
+    from flask import request
+
+    # Read JSON from request body
+    data = request.get_json()
+    if not data or "grades" not in data:
+        return jsonify({"error": "Missing grades data"}), 400
+
+    # Upsert: insert or update
+    db.grades.update_one(
+        {"studentEmail": email.lower()},
+        {"$set": {"grades": data["grades"]}},
+        upsert=True
+    )
+    return jsonify({"message": f"Grades for {email} added/updated successfully"}), 200
+

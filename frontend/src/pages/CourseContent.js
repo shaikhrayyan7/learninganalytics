@@ -13,9 +13,8 @@ function CourseContent() {
   const [course, setCourse] = useState(null);
   const navigate = useNavigate();
 
-  const email = localStorage.getItem("email") ;
-  const role = localStorage.getItem("role") ;
-  const username = email.split("@")[0];
+  const email = localStorage.getItem("email");
+  const role = localStorage.getItem("role");
 
   useEffect(() => {
     localStorage.setItem("menuOpen", menuOpen);
@@ -27,22 +26,25 @@ function CourseContent() {
         const res = await fetch(`http://127.0.0.1:5000/api/courses/${courseId}`);
         const data = await res.json();
         if (!data.error) {
-          // add some default tab contents for now
+          // Use tabs from backend, fallback to default text if missing
+          const tabs = {
+            overview: data.tabs?.overview || "No overview available yet.",
+            material: data.tabs?.material || "Study material will be uploaded here.",
+            exam: data.tabs?.exam || "Examination details will be announced.",
+            exercises: data.tabs?.exercises || "Exercises will be provided.",
+            lecture: data.tabs?.lecture || "Lecture schedule will be shared."
+          };
+
           setCourse({
             ...data,
-            tabs: {
-              overview: data.description || "No overview available yet.",
-              material: "Study material will be uploaded here.",
-              exam: "Examination details will be announced.",
-              exercises: "Exercises will be provided.",
-              lecture: "Lecture schedule will be shared."
-            }
+            tabs
           });
         }
       } catch (err) {
         console.error("Error fetching course details:", err);
       }
     };
+
     fetchCourseDetails();
   }, [courseId]);
 
